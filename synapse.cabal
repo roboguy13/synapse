@@ -34,6 +34,7 @@ executable synapse
       Synapse.Syntax.Parser.Term
       Synapse.Syntax.Parser.Judgment
       Synapse.Syntax.Parser.Rule
+      Synapse.Syntax.Parser.System
       Synapse.Logic.Unify
       Synapse.Logic.Substitution
       Synapse.Ppr

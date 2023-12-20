@@ -6,6 +6,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Synapse.Syntax.Term
   where
@@ -41,6 +42,17 @@ newtype TermSpecAlt = TermSpecAlt Term
 newtype TermSpec = TermSpec [TermSpecAlt]
 
 type Grammar = [([String], TermSpec)]
+
+instance Ppr Grammar where
+  ppr = vcat . map go
+    where
+      go (names, TermSpec specAlts) =
+        sep (punctuate (text ",") (map text names))
+          <+> text "::="
+          $$ vcat (map ppr specAlts)
+
+instance Ppr TermSpecAlt where
+  ppr (TermSpecAlt alt) = ppr alt
 
 -- | Find the TermSpec corresponding to the given variable name
 lookupTermSpec :: Grammar -> String -> TermSpec

@@ -36,6 +36,9 @@ parseTermSpecAlt = TermSpecAlt <$> lexemeNewline parseTerm
 parseVarName :: Parser String
 parseVarName = char '?' *> parseIdentifier
 
+parseGrammar :: Parser Grammar
+parseGrammar = some parseTermSpec
+
 parseTermSpec :: Parser ([String], TermSpec)
 parseTermSpec = lexemeNewline $ do
   names <- lexemeNewline parseVarName `sepBy1` symbolNewline ","
