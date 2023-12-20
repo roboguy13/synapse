@@ -40,6 +40,19 @@ newtype TermSpecAlt = TermSpecAlt Term
 
 newtype TermSpec = TermSpec [TermSpecAlt]
 
+type Grammar = [([String], TermSpec)]
+
+-- | Find the TermSpec corresponding to the given variable name
+lookupTermSpec :: Grammar -> String -> TermSpec
+lookupTermSpec ((names, spec) : rest) name =
+  if getVarName name `elem` names
+  then spec
+  else lookupTermSpec rest name
+
+-- Get the part before the underscore. So, ?e_10 gives back the ?e name
+getVarName :: String -> String
+getVarName = takeWhile (/= '_')
+
 mkTermSpec :: [Term] -> TermSpec
 mkTermSpec = TermSpec . coerce
 

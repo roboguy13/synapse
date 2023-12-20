@@ -36,6 +36,21 @@ sc = L.space
   mempty --(L.skipLineComment "--")
   (L.skipBlockComment "{-" "-}")
 
+scNewline :: Parser ()
+scNewline = L.space
+  space1
+  mempty --(L.skipLineComment "--")
+  (L.skipBlockComment "{-" "-}")
+
+lexemeNewline :: Parser a -> Parser a
+lexemeNewline = L.lexeme scNewline
+
+symbolNewline :: String -> Parser String
+symbolNewline = L.symbol scNewline
+
+keywordNewline :: String -> Parser String
+keywordNewline str = lexemeNewline (string str <* notFollowedBy alphaNumChar)
+
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme sc
 

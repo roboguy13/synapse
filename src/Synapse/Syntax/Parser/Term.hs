@@ -14,7 +14,7 @@ parseTerm = label "term" $
   try parseVar <|> try parseIntLit <|> try parseSymbol <|> try parseApp
 
 parseVar :: Parser Term
-parseVar = Var . string2Name <$> lexeme (char '?' *> parseIdentifier)
+parseVar = Var . string2Name <$> lexeme parseVarName
 
 parseSymbol :: Parser Term
 parseSymbol = Symbol <$> lexeme parseIdentifier
@@ -29,4 +29,17 @@ parseApp = lexeme $ do
   args <- many parseTerm
   symbol ")"
   pure $  App f args
+
+parseTermSpecAlt :: Parser TermSpecAlt
+parseTermSpecAlt = TermSpecAlt <$> lexemeNewline parseTerm
+
+parseVarName :: Parser String
+parseVarName = char '?' *> parseIdentifier
+
+parseTermSpec :: Parser ([String], TermSpec)
+parseTermSpec = lexemeNewline $ do
+  names <- lexemeNewline parseVarName `sepBy1` symbolNewline ","
+  symbolNewline "::="
+  alts <- parseTermSpecAlt `sepBy1` symbolNewline "|"
+  pure (names, TermSpec alts)
 

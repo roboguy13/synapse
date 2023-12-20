@@ -29,6 +29,7 @@ executable synapse
       Synapse.Syntax.Term
       Synapse.Syntax.Judgment
       Synapse.Syntax.Rule
+      Synapse.Syntax.System
       Synapse.Syntax.Parser.Utils
       Synapse.Syntax.Parser.Term
       Synapse.Syntax.Parser.Judgment
