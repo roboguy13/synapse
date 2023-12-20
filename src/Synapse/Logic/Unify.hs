@@ -34,7 +34,7 @@ doOccursCheck :: Bool
 doOccursCheck = True
 
 class (Subst a a, Typeable a, Alpha a) => Match a where
-  -- isConst :: a -> Bool
+  isConst :: a -> Bool
   mkVar :: Name a -> a
   isVar :: a -> Maybe (Name a)
 

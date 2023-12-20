@@ -4,6 +4,8 @@
 
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE TupleSections #-}
 
 module Synapse.Syntax.Term
   where
@@ -18,6 +20,9 @@ import GHC.Generics
 import Data.Typeable
 
 import Control.Lens.Plated
+import Control.Applicative
+
+import Data.Coerce
 
 newtype BinderSort = BinderSort Int
   deriving (Show, Generic, Typeable)
@@ -31,6 +36,23 @@ data BinderSpec =
 
 type TermName = Name Term
 
+newtype TermSpecAlt = TermSpecAlt Term
+
+newtype TermSpec = TermSpec [TermSpecAlt]
+
+mkTermSpec :: [Term] -> TermSpec
+mkTermSpec = TermSpec . coerce
+
+termSpecAltSplit :: TermSpecAlt -> Maybe (String, [Term])
+termSpecAltSplit (TermSpecAlt (App (Symbol c) args)) = Just (c, args)
+termSpecAltSplit _ = Nothing
+
+termMatchesSpec :: Term -> TermSpec -> Maybe (TermSpecAlt, Substitution Term)
+termMatchesSpec t (TermSpec spec) = go spec
+  where
+    go []                                 = Nothing
+    go (alt@(TermSpecAlt altSpec) : alts) = sequenceA (fmap (alt, ) runFreshMT (match t altSpec)) <|> go alts
+
 data Term
   = Symbol String
   | IntLit Int
@@ -38,6 +60,8 @@ data Term
   | App Term [Term]
   | Binder BinderSort (Bind TermName Term)
   deriving (Show, Generic, Typeable)
+
+pattern Binder' bnd = Binder (BinderSort 0) bnd
 
 instance Plated Term where
   plate f (Symbol str) = pure $ Symbol str
@@ -69,6 +93,9 @@ instance Subst Term Term where
   isvar _ = Nothing
 
 instance Match Term where
+  isConst (Symbol _) = True
+  isConst _ = False
+
   mkVar = Var
 
   isVar (Var x) = Just x
