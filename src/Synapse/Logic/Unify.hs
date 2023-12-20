@@ -6,6 +6,15 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Synapse.Logic.Unify
+  (Match (..)
+  ,match
+  ,unify
+  ,matchSubst
+  ,unifySubst
+
+  ,Substitution
+  ,applySubstitution
+  )
   where
 
 import Prelude hiding (abs, lookup)
@@ -22,19 +31,10 @@ import Control.Lens.Plated
 import Data.Typeable
 import Data.Foldable
 
+import Data.Maybe
+
 doOccursCheck :: Bool
 doOccursCheck = True
-
--- data Grammar =
---   Grammar
---   { grammarKeywords :: [String]
---   , grammarBinders :: [String]
---   -- , grammarProductions :: [(String, ProductionRhs)]
---   }
--- type ProductionRhs = [TermSpec]
--- data TermSpec
---   = TermSpec Term
---   | BinderSpecTS BinderSpec
 
 class (Subst a a, Typeable a, Plated a, Alpha a) => Match a where
   isConst :: a -> Bool
@@ -51,18 +51,42 @@ class (Subst a a, Typeable a, Plated a, Alpha a) => Match a where
   mkBinder :: Name a -> a -> a
 
 match :: Match a => a -> a -> FreshMT Maybe (Substitution a)
-match = generalUnify (\_ _ -> lift Nothing) mempty
+match = matchSubst mempty
 
 unify :: Match a => a -> a -> FreshMT Maybe (Substitution a)
 unify = unifySubst mempty
 
+matchSubst :: Match a => Substitution a -> a -> a -> FreshMT Maybe (Substitution a)
+matchSubst = generalUnify matchSolver
+
 unifySubst :: Match a => Substitution a -> a -> a -> FreshMT Maybe (Substitution a)
-unifySubst = generalUnify unifyVar
+unifySubst = generalUnify unifySolver
 
-type VarCase a = Name a -> a -> FreshMT Maybe (Substitution a)
+data Solver a =
+  Solver
+  { solveFlexFlex :: Name a -> [a] -> Name a -> [a] -> Substitution a -> FreshMT Maybe (Substitution a)
+  , solveFlexRigid :: Name a -> [a] -> a -> Substitution a -> FreshMT Maybe (Substitution a)
+  , solveFlexRigidRight :: Name a -> [a] -> a -> Substitution a -> FreshMT Maybe (Substitution a)
+  }
 
-generalUnify :: Match a => VarCase a -> Substitution a -> a -> a -> FreshMT Maybe (Substitution a)
-generalUnify varCase sbst s0 t0 =
+matchSolver :: Match a => Solver a
+matchSolver =
+  Solver
+  { solveFlexFlex = flexFlexMatch
+  , solveFlexRigid = flexRigidMatch
+  , solveFlexRigidRight = flexRigidRightMatch
+  }
+
+unifySolver :: Match a => Solver a
+unifySolver =
+  Solver
+  { solveFlexFlex = flexFlexUnify
+  , solveFlexRigid = flexRigidUnify
+  , solveFlexRigidRight = flexRigidRightUnify
+  }
+
+generalUnify :: Match a => Solver a -> Substitution a -> a -> a -> FreshMT Maybe (Substitution a)
+generalUnify solver sbst s0 t0 =
   case (devar sbst s0, devar sbst t0) of
     (s, t)
       | Just (sortS, x, s) <- isBinder s
@@ -70,35 +94,64 @@ generalUnify varCase sbst s0 t0 =
       , binderSortId sortS == binderSortId sortT ->
           let t' = if x == y then t else subst y (mkVar x) t
           in
-          generalUnify varCase sbst s t'
+          generalUnify solver sbst s t'
 
       | Just (sortS, x, s) <- isBinder s ->
-          generalUnify varCase sbst s (mkApp t (mkVar x))
+          generalUnify solver sbst s (mkApp t (mkVar x))
 
       | Just (sortS, x, t) <- isBinder t ->
-          generalUnify varCase sbst (mkApp s (mkVar x)) t
+          generalUnify solver sbst (mkApp s (mkVar x)) t
 
-      | otherwise -> nonbinderCases varCase sbst s t
+      | otherwise -> nonbinderCases solver sbst s t
 {-# INLINE generalUnify #-}
 
-nonbinderCases :: Match a => VarCase a -> Substitution a -> a -> a -> FreshMT Maybe (Substitution a)
-nonbinderCases varCase sbst s t =
+nonbinderCases :: Match a => Solver a -> Substitution a -> a -> a -> FreshMT Maybe (Substitution a)
+nonbinderCases solver sbst s t =
   case (strip s, strip t) of
     ((a, ym), (b, tn))
       | Just f <- isVar a, isFreeName f
-      , Just g <- isVar b, isFreeName g -> flexFlex f ym g tn sbst
+      , Just g <- isVar b, isFreeName g -> solveFlexFlex solver f ym g tn sbst
 
-      | Just f <- isVar a, isFreeName f -> flexRigid f ym t sbst
+      | Just f <- isVar a, isFreeName f -> solveFlexRigid solver f ym t sbst
 
-      | Just f <- isVar b, isFreeName f -> flexRigid f ym s sbst
+      | Just f <- isVar b, isFreeName f -> solveFlexRigidRight solver f ym s sbst
 
-      | otherwise -> rigidRigid a ym b tn sbst
+      | otherwise -> rigidRigid solver a ym b tn sbst
 
-flexFlex :: Match a => Name a -> [a] -> Name a -> [a] -> Substitution a -> FreshMT Maybe (Substitution a)
-flexFlex f ym g zn sbst =
+flexFlexMatch :: Match a => Name a -> [a] -> Name a -> [a] -> Substitution a -> FreshMT Maybe (Substitution a)
+flexFlexMatch _ _ _ _ _ = lift Nothing
+
+flexRigidMatch :: Match a => Name a -> [a] -> a -> Substitution a -> FreshMT Maybe (Substitution a)
+flexRigidMatch f ym t sbst =
+  let looseVars = getLooseBoundVars t
+  in
+  if all (`elem` mapMaybe isVar ym) looseVars
+  then pure $ extend sbst f $ abs ym t
+  else lift Nothing
+
+flexRigidRightMatch :: Match a => Name a -> [a] -> a -> Substitution a -> FreshMT Maybe (Substitution a)
+flexRigidRightMatch _ _ _ _ = lift Nothing
+
+flexFlexUnify :: Match a => Name a -> [a] -> Name a -> [a] -> Substitution a -> FreshMT Maybe (Substitution a)
+flexFlexUnify f ym g zn sbst =
   if f == g
   then flexFlex1 f ym zn sbst
   else flexFlex2 f ym g zn sbst
+
+flexRigidRightUnify :: Match a => Name a -> [a] -> a -> Substitution a -> FreshMT Maybe (Substitution a)
+flexRigidRightUnify = flexRigidUnify
+
+flexRigidUnify :: Match a => Name a -> [a] -> a -> Substitution a -> FreshMT Maybe (Substitution a)
+flexRigidUnify f ym t sbst =
+  if occursCheck sbst f t
+  then lift Nothing
+  else proj (map unsafeGetVar ym) (extend sbst f (abs ym t)) t
+
+rigidRigid :: Match a => Solver a -> a -> [a] -> a -> [a] -> Substitution a -> FreshMT Maybe (Substitution a)
+rigidRigid solver a ss b ts sbst =
+  if not (a `aeq` b)
+  then lift Nothing
+  else foldlM (uncurry . generalUnify solver) sbst (zip ss ts)
 
 flexFlex1 :: Match a => Name a -> [a] -> [a] -> Substitution a -> FreshMT Maybe (Substitution a)
 flexFlex1 f ym zn sbst = do
@@ -112,18 +165,6 @@ flexFlex2 f ym g zn sbst = do
   let xk = ym ++ zn
   h <- fresh (string2Name "alpha")
   pure $ extend (extend sbst g (hnf zn h xk)) f (hnf ym h xk)
-
-flexRigid :: Match a => Name a -> [a] -> a -> Substitution a -> FreshMT Maybe (Substitution a)
-flexRigid f ym t sbst =
-  if occursCheck sbst f t
-  then lift Nothing
-  else proj (map unsafeGetVar ym) (extend sbst f (abs ym t)) t
-
-rigidRigid :: Match a => a -> [a] -> a -> [a] -> Substitution a -> FreshMT Maybe (Substitution a)
-rigidRigid a ss b ts sbst =
-  if not (a `aeq` b)
-  then lift Nothing
-  else foldlM (uncurry . unifySubst) sbst (zip ss ts) -- TODO: Use generalUnify
 
 proj :: Match a => [Name a] -> Substitution a -> a -> FreshMT Maybe (Substitution a)
 proj w sbst s =
@@ -171,9 +212,6 @@ devar sbst t =
             Just s -> devar sbst (red t ys)
       | otherwise -> t
 
-unifyVar :: Match a => Name a -> a -> FreshMT Maybe (Substitution a)
-unifyVar = undefined
-
 occursCheck :: Match a => 
   Substitution a -> Name a -> a -> Bool
 occursCheck =
@@ -200,4 +238,16 @@ hnf xs f ss = abs xs (foldl mkApp (mkVar f) ss)
 
 isBound :: Name a -> Bool
 isBound = not . isFreeName
+
+getLooseBoundVars :: Match a => a -> [Name a]
+getLooseBoundVars = go []
+  where
+    go inScopeNames t
+      | Just x <- isVar t =
+          if isBound x && x `notElem` inScopeNames
+          then [x]
+          else []
+      | Just (_, x, body) <- isBinder t = go (x : inScopeNames) body
+      | ts <- getChildren t = concatMap (go inScopeNames) ts
+      | otherwise = [] -- This should only be reached in the constant cases
 
