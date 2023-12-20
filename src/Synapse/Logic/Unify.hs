@@ -26,8 +26,6 @@ import Unbound.Generics.LocallyNameless
 
 import Control.Monad.Trans
 
-import Control.Lens.Plated
-
 import Data.Typeable
 import Data.Foldable
 
@@ -36,7 +34,7 @@ import Data.Maybe
 doOccursCheck :: Bool
 doOccursCheck = True
 
-class (Subst a a, Typeable a, Plated a, Alpha a) => Match a where
+class (Subst a a, Typeable a, Alpha a) => Match a where
   isConst :: a -> Bool
   mkVar :: Name a -> a
   isVar :: a -> Maybe (Name a)
@@ -249,5 +247,4 @@ getLooseBoundVars = go []
           else []
       | Just (_, x, body) <- isBinder t = go (x : inScopeNames) body
       | ts <- getChildren t = concatMap (go inScopeNames) ts
-      | otherwise = [] -- This should only be reached in the constant cases
 
