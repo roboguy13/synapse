@@ -19,7 +19,6 @@ module Synapse.Logic.Unify
 
 import Prelude hiding (abs, lookup)
 
-import Synapse.Syntax.Term
 import Synapse.Logic.Substitution as Substitution
 
 import Unbound.Generics.LocallyNameless
@@ -35,14 +34,14 @@ doOccursCheck :: Bool
 doOccursCheck = True
 
 class (Subst a a, Typeable a, Alpha a) => Match a where
-  isConst :: a -> Bool
+  -- isConst :: a -> Bool
   mkVar :: Name a -> a
   isVar :: a -> Maybe (Name a)
 
-  matchConstructor :: a -> a -> Maybe [(a, a)]
+  -- matchConstructor :: a -> a -> Maybe [(a, a)]
   getChildren :: a -> [a]
 
-  isBinder :: a -> Maybe (BinderSort, Name a, a)
+  isBinder :: a -> Maybe (Int, Name a, a)
   isApp :: a -> Maybe (a, a)
 
   mkApp :: a -> a -> a
@@ -89,7 +88,7 @@ generalUnify solver sbst s0 t0 =
     (s, t)
       | Just (sortS, x, s) <- isBinder s
       , Just (sortT, y, t) <- isBinder t
-      , binderSortId sortS == binderSortId sortT ->
+      , sortS == sortT ->
           let t' = if x == y then t else subst y (mkVar x) t
           in
           generalUnify solver sbst s t'
