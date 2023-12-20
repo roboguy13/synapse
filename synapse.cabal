@@ -28,8 +28,11 @@ executable synapse
     other-modules:
       Synapse.Syntax.Term
       Synapse.Syntax.Judgment
+      Synapse.Syntax.Rule
       Synapse.Syntax.Parser.Utils
       Synapse.Syntax.Parser.Term
+      Synapse.Syntax.Parser.Judgment
+      Synapse.Syntax.Parser.Rule
       Synapse.Logic.Unify
       Synapse.Logic.Substitution
       Synapse.Ppr

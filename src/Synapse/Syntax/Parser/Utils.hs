@@ -17,6 +17,7 @@ import Control.Applicative hiding (some, many)
 import Control.Monad
 
 import Data.Void
+import Data.Functor
 
 type Parser = Parsec Void String
 
@@ -31,7 +32,7 @@ parse'' sourceName p str =
 
 sc :: Parser ()
 sc = L.space
-  space1
+  (takeWhile1P (Just "space") (`elem` " \t") $> ()) --space1
   mempty --(L.skipLineComment "--")
   (L.skipBlockComment "{-" "-}")
 
@@ -63,7 +64,7 @@ parseIdentifier = label "identifier" $ do
     pure ident
   where
     parseFirst, parseTailChar :: Parser Char
-    parseFirst = letterChar <|> oneOf "!@#$%^&*+-.?:~=<>/|_"
+    parseFirst = letterChar <|> oneOf "!@#$%^&*+-.:~=<>/|_"
     parseTailChar = parseFirst <|> digitChar
 
 isInt :: String -> Bool
@@ -73,8 +74,11 @@ isInt xs       = isNatural xs
 isNatural :: String -> Bool
 isNatural = all isDigit
 
+parserFailure :: Maybe String -> String -> Parser a
+parserFailure unexpected expected =
+  failure (fmap (Label . NonEmpty.fromList) unexpected) (Set.singleton (Label (NonEmpty.fromList expected)))
+
 parserGuard :: Bool -> Maybe String -> String -> Parser ()
 parserGuard True _ _ = pure ()
-parserGuard False unexpected expected =
-  failure (fmap (Label . NonEmpty.fromList) unexpected) (Set.singleton (Label (NonEmpty.fromList expected)))
+parserGuard False unexpected expected = parserFailure unexpected expected
 
