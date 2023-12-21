@@ -1,19 +1,19 @@
-	Wed Dec 20 23:04 2023 Time and Allocation Profiling Report  (Final)
+	Wed Dec 20 23:14 2023 Time and Allocation Profiling Report  (Final)
 
 	   synapse +RTS -pa -RTS tests/test1.syn
 
-	total time  =        0.00 secs   (2 ticks @ 1000 us, 1 processor)
-	total alloc =     334,552 bytes  (excludes profiling overheads)
+	total time  =        0.00 secs   (3 ticks @ 1000 us, 1 processor)
+	total alloc =     351,712 bytes  (excludes profiling overheads)
 
 COST CENTRE                   MODULE                                        SRC                                                                   %time %alloc  ticks     bytes
 
-SYSTEM                        SYSTEM                                        <built-in>                                                             50.0   10.4      1     34736
-main                          Main                                          src/Main.hs:(12,1)-(17,53)                                             50.0   15.5      1     51840
+GC                            GC                                            <built-in>                                                             33.3    0.3      1      1096
+SYSTEM                        SYSTEM                                        <built-in>                                                             33.3    9.9      1     34736
+parseIdentifierWith           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)                      33.3    9.2      1     32200
 IDLE                          IDLE                                          <built-in>                                                              0.0    0.0      0         0
 PINNED                        SYSTEM                                        <built-in>                                                              0.0    0.0      0         0
 DONT_CARE                     MAIN                                          <built-in>                                                              0.0    0.0      0         0
-OVERHEAD_of                   PROFILING                                     <built-in>                                                              0.0    2.0      0      6600
-GC                            GC                                            <built-in>                                                              0.0    0.3      0      1096
+OVERHEAD_of                   PROFILING                                     <built-in>                                                              0.0    1.9      0      6816
 MAIN                          MAIN                                          <built-in>                                                              0.0    0.2      0       640
 CAF                           GHC.Types                                     <entire-module>                                                         0.0    0.0      0         0
 CAF                           GHC.Tuple                                     <entire-module>                                                         0.0    0.0      0         0
@@ -92,7 +92,7 @@ CAF                           GHC.IO.IOMode                                 <ent
 CAF                           GHC.IO.Handle.Types                           <entire-module>                                                         0.0    0.0      0         0
 CAF                           GHC.IO.Handle.Text                            <entire-module>                                                         0.0    0.0      0         0
 CAF                           GHC.IO.Handle.Internals                       <entire-module>                                                         0.0    0.0      0        24
-CAF                           GHC.IO.Handle.FD                              <entire-module>                                                         0.0   10.4      0     34704
+CAF                           GHC.IO.Handle.FD                              <entire-module>                                                         0.0    9.9      0     34704
 CAF                           GHC.IO.Handle                                 <entire-module>                                                         0.0    0.0      0         0
 CAF                           GHC.IO.FD                                     <entire-module>                                                         0.0    0.0      0        16
 CAF                           GHC.IO.Exception                              <entire-module>                                                         0.0    0.1      0       496
@@ -103,7 +103,7 @@ CAF                           GHC.IO.Encoding.Types                         <ent
 CAF                           GHC.IO.Encoding.Latin1                        <entire-module>                                                         0.0    0.0      0         0
 CAF                           GHC.IO.Encoding.Iconv                         <entire-module>                                                         0.0    0.1      0       200
 CAF                           GHC.IO.Encoding.Failure                       <entire-module>                                                         0.0    0.0      0         0
-CAF                           GHC.IO.Encoding                               <entire-module>                                                         0.0    0.9      0      2976
+CAF                           GHC.IO.Encoding                               <entire-module>                                                         0.0    0.8      0      2976
 CAF                           GHC.IO.Device                                 <entire-module>                                                         0.0    0.0      0         0
 CAF                           GHC.IO.BufferedIO                             <entire-module>                                                         0.0    0.0      0         0
 CAF                           GHC.IO.Buffer                                 <entire-module>                                                         0.0    0.0      0         0
@@ -361,9 +361,9 @@ initialState                  Text.Megaparsec.State                         Text
 initialPosState               Text.Megaparsec.State                         Text/Megaparsec/State.hs:(127,1)-(134,5)                                0.0    0.0      0         0
 CAF                           Text.Megaparsec.Lexer                         <entire-module>                                                         0.0    0.0      0         0
 symbol'                       Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:123:1-34                                       0.0    0.0      0         0
-symbol                        Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                                       0.0    1.6      0      5408
-space                         Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)                                 0.0   17.6      0     58800
-lexeme                        Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                                        0.0    4.2      0     13992
+symbol                        Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                                       0.0    1.5      0      5408
+space                         Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)                                 0.0   16.7      0     58800
+lexeme                        Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                                        0.0    4.0      0     13992
 CAF                           Text.Megaparsec.Class                         <entire-module>                                                         0.0    0.0      0         0
 CAF                           Text.Megaparsec.Stream                        <entire-module>                                                         0.0    0.0      0         0
 unShareInput                  Text.Megaparsec.Stream                        Text/Megaparsec/Stream.hs:186:36-47                                     0.0    0.0      0         0
@@ -391,9 +391,9 @@ bundlePosState                Text.Megaparsec.Error                         Text
 bundleErrors                  Text.Megaparsec.Error                         Text/Megaparsec/Error.hs:248:5-16                                       0.0    0.0      0         0
 attachSourcePos               Text.Megaparsec.Error                         Text/Megaparsec/Error.hs:(321,1)-(327,38)                               0.0    0.0      0         0
 CAF                           Text.Megaparsec.Char.Lexer                    <entire-module>                                                         0.0    0.0      0         0
-skipLineComment               Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)                            0.0    5.5      0     18432
+skipLineComment               Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)                            0.0    5.2      0     18432
 skipBlockCommentNested        Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(125,1)-(129,20)                          0.0    0.0      0         0
-skipBlockComment              Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)                          0.0    4.1      0     13760
+skipBlockComment              Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)                          0.0    3.9      0     13760
 signed                        Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(549,1)-(551,56)                          0.0    0.0      0         0
 scientific                    Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(473,1)-(477,29)                          0.0    0.0      0         0
 octal                         Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(421,1)-(427,55)                          0.0    0.0      0         0
@@ -498,25 +498,26 @@ name2Integer                  Unbound.Generics.LocallyNameless.Name         src/
 makeName                      Unbound.Generics.LocallyNameless.Name         src/Unbound/Generics/LocallyNameless/Name.hs:72:1-13                    0.0    0.0      0         0
 isFreeName                    Unbound.Generics.LocallyNameless.Name         src/Unbound/Generics/LocallyNameless/Name.hs:(59,1)-(60,20)             0.0    0.0      0         0
 CAF                           Main                                          <entire-module>                                                         0.0    0.0      0        16
+main                          Main                                          src/Main.hs:(12,1)-(17,53)                                              0.0   17.4      0     61224
 CAF                           Synapse.Syntax.Parser.System                  <entire-module>                                                         0.0    0.4      0      1344
 parseSystem                   Synapse.Syntax.Parser.System                  src/Synapse/Syntax/Parser/System.hs:(17,1)-(24,36)                      0.0    0.2      0       552
 CAF                           Synapse.Syntax.Parser.Rule                    <entire-module>                                                         0.0    0.0      0       160
 parseRuleName                 Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(29,1)-(33,11)                        0.0    0.0      0        64
-parseRule                     Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(15,1)-(21,38)                        0.0    1.3      0      4224
+parseRule                     Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(15,1)-(21,38)                        0.0    1.2      0      4224
 parseHLine                    Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(24,1)-(26,53)                        0.0    0.2      0       568
 CAF                           Synapse.Syntax.Parser.Judgment                <entire-module>                                                         0.0    0.0      0       112
-parseSpecPart                 Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(37,1)-(39,49)                    0.0    0.7      0      2248
+parseSpecPart                 Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(37,1)-(39,49)                    0.0    0.6      0      2248
 parseJudgmentSpec             Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(42,1)-(45,32)                    0.0    0.4      0      1464
 parseJudgmentForm             Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:34:1-47                           0.0    0.8      0      2792
 parseJudgmentArity            Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(48,1)-(54,53)                    0.0    0.6      0      1936
 parseJudgment                 Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(17,1)-(21,62)                    0.0    0.1      0       448
 parseFromPart                 Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(29,1)-(30,62)                    0.0    0.6      0      2000
-parseFromJudgmentSpec         Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(24,1)-(26,25)                    0.0    1.3      0      4184
-CAF                           Synapse.Syntax.System                         <entire-module>                                                         0.0    0.0      0         0
+parseFromJudgmentSpec         Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(24,1)-(26,25)                    0.0    1.2      0      4184
+CAF                           Synapse.Syntax.System                         <entire-module>                                                         0.0    0.4      0      1344
 systemRules                   Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:17:5-15                                    0.0    0.0      0         0
 systemJudgmentSpecs           Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:16:5-23                                    0.0    0.0      0         0
 systemGrammar                 Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:15:5-17                                    0.0    0.0      0         0
-ppr                           Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:(21,3)-(26,5)                              0.0    0.5      0      1736
+ppr                           Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:(21,3)-(31,5)                              0.0    1.7      0      6080
 CAF                           Synapse.Syntax.Rule                           <entire-module>                                                         0.0    0.2      0       576
 showsPrec                     Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:12:13-16                                     0.0    0.0      0         0
 showList                      Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:12:13-16                                     0.0    0.0      0         0
@@ -525,34 +526,35 @@ rulePremises                  Synapse.Syntax.Rule                           src/
 ruleName                      Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:8:5-12                                       0.0    0.0      0         0
 ruleConclusion                Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:10:5-18                                      0.0    0.0      0         0
 ppr                           Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:(15,3)-(26,60)                               0.0    0.2      0       832
-CAF                           Synapse.Syntax.Judgment                       <entire-module>                                                         0.0    0.0      0        80
+CAF                           Synapse.Syntax.Judgment                       <entire-module>                                                         0.0    0.0      0        16
 showsPrec                     Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:13:13-16                                 0.0    0.0      0         0
-showsPrec                     Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:20:13-16                                 0.0    0.0      0         0
-showsPrec                     Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:27:13-16                                 0.0    0.0      0         0
+showsPrec                     Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:22:13-16                                 0.0    0.0      0         0
+showsPrec                     Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:29:13-16                                 0.0    0.0      0         0
 showList                      Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:13:13-16                                 0.0    0.0      0         0
-showList                      Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:20:13-16                                 0.0    0.0      0         0
-showList                      Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:27:13-16                                 0.0    0.0      0         0
+showList                      Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:22:13-16                                 0.0    0.0      0         0
+showList                      Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:29:13-16                                 0.0    0.0      0         0
 show                          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:13:13-16                                 0.0    0.0      0         0
-show                          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:20:13-16                                 0.0    0.0      0         0
-show                          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:27:13-16                                 0.0    0.0      0         0
-ppr                           Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(34,3)-(37,34)                           0.0    0.1      0       472
-ppr                           Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(40,3)-(44,59)                           0.0    0.0      0       128
-judgmentSpots                 Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:25:5-17                                  0.0    0.0      0         0
-judgmentSpecParts             Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:17:5-21                                  0.0    0.0      0         0
-judgmentSpecArity             Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:18:5-21                                  0.0    0.0      0         0
-judgmentSpec                  Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:24:5-16                                  0.0    0.0      0         0
-isJudgmentWellFormed          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(30,1)-(31,97)                           0.0    0.0      0         0
+show                          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:22:13-16                                 0.0    0.0      0         0
+show                          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:29:13-16                                 0.0    0.0      0         0
+ppr                           Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(43,3)-(46,34)                           0.0    0.2      0       840
+ppr                           Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(49,3)-(53,59)                           0.0    0.0      0       128
+mergeSpec                     Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(36,1)-(40,17)                           0.0    0.1      0       200
+judgmentSpots                 Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:27:5-17                                  0.0    0.0      0         0
+judgmentSpecParts             Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:19:5-21                                  0.0    0.0      0         0
+judgmentSpecArity             Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:20:5-21                                  0.0    0.0      0         0
+judgmentSpec                  Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:26:5-16                                  0.0    0.0      0         0
+isJudgmentWellFormed          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(32,1)-(33,97)                           0.0    0.0      0         0
 CAF                           Synapse.Syntax.Parser.Term                    <entire-module>                                                         0.0    0.2      0       544
 parseVarName                  Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42                               0.0    0.8      0      2720
 parseVar                      Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:17:1-52                               0.0    0.8      0      2752
-parseTermSpecAlt              Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:34:1-58                               0.0    0.2      0       504
-parseTermSpec                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,29)                        0.0    0.0      0        16
+parseTermSpecAlt              Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:34:1-58                               0.0    0.1      0       504
+parseTermSpec                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,28)                        0.0    0.0      0        16
 parseTerm                     Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)                        0.0    0.4      0      1248
 parseSymbol                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:20:1-47                               0.0    0.6      0      1968
 parseIntLit                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:23:1-40                               0.0    0.6      0      1968
 parseGrammar                  Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:40:1-33                               0.0    0.0      0        72
 parseApp                      Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(26,1)-(31,20)                        0.0    0.0      0        16
-CAF                           Synapse.Syntax.Term                           <entire-module>                                                         0.0    0.1      0       208
+CAF                           Synapse.Syntax.Term                           <entire-module>                                                         0.0    0.1      0       272
 to                            Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:29:19-25                                     0.0    0.0      0         0
 to                            Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:97:19-25                                     0.0    0.0      0         0
 to                            Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:36:19-25                                     0.0    0.0      0         0
@@ -582,10 +584,10 @@ show                          Synapse.Syntax.Term                           src/
 show                          Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:41:13-16                                     0.0    0.0      0         0
 show                          Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:44:13-16                                     0.0    0.0      0         0
 show                          Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:36:13-16                                     0.0    0.0      0         0
-ppr                           Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(112,3)-(116,38)                             0.0    0.2      0       632
+ppr                           Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(112,3)-(116,38)                             0.0    0.2      0       824
 ppr                           Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:57:3-33                                      0.0    0.0      0         0
 ppr                           Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(60,3)-(65,12)                               0.0    0.0      0         0
-ppr                           Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(49,3)-(54,36)                               0.0    0.3      0       976
+ppr                           Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(49,3)-(54,45)                               0.0    0.5      0      1880
 plate                         Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(102,3)-(109,36)                             0.0    0.0      0         0
 open                          Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:121:10-25                                    0.0    0.0      0         0
 open                          Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:122:10-19                                    0.0    0.0      0         0
@@ -594,10 +596,9 @@ nthPatFind                    Synapse.Syntax.Term                           src/
 namePatFind                   Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:121:10-25                                    0.0    0.0      0         0
 namePatFind                   Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:122:10-19                                    0.0    0.0      0         0
 mkVar                         Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:134:3-13                                     0.0    0.0      0         0
-mkTermSpec                    Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:79:1-30                                      0.0    0.0      0         0
 mkBinder                      Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:156:3-45                                     0.0    0.0      0         0
 mkApp                         Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(152,3)-(154,23)                             0.0    0.0      0         0
-lookupTermSpec                Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(69,1)-(72,31)                               0.0    0.0      0         0
+lookupTermSpec                Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(69,1)-(72,31)                               0.0    0.0      0        64
 lfreshen'                     Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:121:10-25                                    0.0    0.0      0         0
 lfreshen'                     Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:122:10-19                                    0.0    0.0      0         0
 isvar                         Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:124:10-30                                    0.0    0.0      0         0
@@ -614,7 +615,7 @@ isCoerceVar                   Synapse.Syntax.Term                           src/
 isCoerceVar                   Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:126:10-24                                    0.0    0.0      0         0
 isBinder                      Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(141,3)-(144,22)                             0.0    0.0      0         0
 isApp                         Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(146,3)-(150,19)                             0.0    0.0      0         0
-getVarName                    Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:76:1-31                                      0.0    0.0      0         0
+getVarName                    Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:76:1-31                                      0.0    0.0      0       144
 getChildren                   Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:139:3-24                                     0.0    0.0      0         0
 fvAny'                        Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:121:10-25                                    0.0    0.0      0         0
 fvAny'                        Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:122:10-19                                    0.0    0.0      0         0
@@ -635,18 +636,17 @@ symbolNewline                 Synapse.Syntax.Parser.Utils                   src/
 symbol                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20                              0.0    0.2      0       640
 scNewline                     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)                       0.0    0.1      0       312
 sc                            Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)                       0.0    0.1      0       312
-parserGuard                   Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(105,1)-(106,73)                     0.0    0.1      0       168
+parserGuard                   Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(105,1)-(106,73)                     0.0    0.0      0       168
 parserFailure                 Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(101,1)-(102,108)                    0.0    0.1      0       184
 parseJudgmentIdentifier       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:78:1-48                              0.0    0.0      0         0
-parseInt                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(64,1)-(72,26)                       0.0    2.0      0      6680
-parseIdentifierWith           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)                       0.0    9.6      0     32200
+parseInt                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(64,1)-(72,26)                       0.0    1.9      0      6680
 parseIdentifier               Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41                              0.0    0.0      0         0
 parse''                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(28,1)-(31,16)                       0.0    0.0      0         0
 parse'                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:25:1-26                              0.0    0.0      0         0
 lexemeNewline                 Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:46:1-34                              0.0    0.0      0         0
 lexeme                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20                              0.0    0.0      0         0
 keywords                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:91:1-44                              0.0    0.0      0         0
-keywordNewline                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:52:1-77                              0.0    1.4      0      4672
+keywordNewline                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:52:1-77                              0.0    1.3      0      4672
 keyword                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:61:1-63                              0.0    0.8      0      2720
 isNatural                     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23                              0.0    0.3      0       880
 isInt                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(94,1)-(95,29)                       0.0    0.0      0        16
@@ -707,9 +707,9 @@ MAIN                                           MAIN                             
  CAF                                           Synapse.Logic.Substitution                    <entire-module>                                       589           0    0.0    0.0     0.0    0.0      0         0
  CAF                                           Synapse.Logic.Unify                           <entire-module>                                       588           0    0.0    0.0     0.0    0.0      0         0
  CAF                                           Synapse.Ppr                                   <entire-module>                                       587           0    0.0    0.0     0.0    0.0      0        16
-  <.>                                          Synapse.Ppr                                   src/Synapse/Ppr.hs:19:1-38                           1227           1    0.0    0.0     0.0    0.0      0         0
-  ppr                                          Synapse.Ppr                                   src/Synapse/Ppr.hs:17:29-45                          1235           1    0.0    0.0     0.0    0.0      0         0
- CAF                                           Synapse.Syntax.Parser.Utils                   <entire-module>                                       586           0    0.0    0.3     0.0    1.6      0      1048
+  <.>                                          Synapse.Ppr                                   src/Synapse/Ppr.hs:19:1-38                           1231           1    0.0    0.0     0.0    0.0      0         0
+  ppr                                          Synapse.Ppr                                   src/Synapse/Ppr.hs:17:29-45                          1239           1    0.0    0.0     0.0    0.0      0         0
+ CAF                                           Synapse.Syntax.Parser.Utils                   <entire-module>                                       586           0    0.0    0.3     0.0    1.5      0      1048
   isNatural                                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23            647           1    0.0    0.0     0.0    0.0      0         0
   keywords                                     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:91:1-44            649           1    0.0    0.0     0.0    0.0      0         0
   lexeme                                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            711           1    0.0    0.0     0.0    0.0      0         0
@@ -724,15 +724,17 @@ MAIN                                           MAIN                             
    skipLineComment                             Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          761           1    0.0    0.0     0.0    0.0      0        96
    space                                       Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               757           1    0.0    0.0     0.0    0.0      0       128
   scNewline                                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     612           1    0.0    0.1     0.0    0.2      0       312
-   skipBlockComment                            Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        622           1    0.0    0.1     0.0    0.1      0       168
+   skipBlockComment                            Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        622           1    0.0    0.0     0.0    0.0      0       168
    skipLineComment                             Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          617           1    0.0    0.0     0.0    0.0      0       112
    space                                       Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               613           1    0.0    0.0     0.0    0.0      0       128
   symbol                                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20            749           1    0.0    0.0     0.0    0.0      0        16
    symbol                                      Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     750           1    0.0    0.0     0.0    0.0      0         0
   symbolNewline                                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:49:1-34            664           1    0.0    0.0     0.0    0.0      0        16
    symbol                                      Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     665           1    0.0    0.0     0.0    0.0      0         0
- CAF                                           Synapse.Syntax.Term                           <entire-module>                                       585           0    0.0    0.1     0.0    0.1      0       208
-  ppr                                          Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(49,3)-(54,36)            1214           1    0.0    0.0     0.0    0.0      0        32
+ CAF                                           Synapse.Syntax.Term                           <entire-module>                                       585           0    0.0    0.1     0.0    0.1      0       272
+  getVarName                                   Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:76:1-31                   1225           1    0.0    0.0     0.0    0.0      0        32
+  ppr                                          Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(49,3)-(54,45)            1215           1    0.0    0.0     0.0    0.0      0        32
+  ppr                                          Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(112,3)-(116,38)          1243           0    0.0    0.0     0.0    0.0      0        64
  CAF                                           Synapse.Syntax.Parser.Term                    <entire-module>                                       584           0    0.0    0.2     0.0    0.6      0       544
   parseApp                                     Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(26,1)-(31,20)      744           1    0.0    0.0     0.0    0.1      0        16
    lexeme                                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            745           0    0.0    0.0     0.0    0.0      0         0
@@ -748,7 +750,7 @@ MAIN                                           MAIN                             
    lexeme                                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            734           0    0.0    0.0     0.0    0.0      0         0
     lexeme                                     Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                      735           1    0.0    0.0     0.0    0.0      0        48
   parseTerm                                    Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)      705           1    0.0    0.0     0.0    0.0      0         0
-  parseTermSpec                                Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,29)      631           1    0.0    0.0     0.0    0.2      0        16
+  parseTermSpec                                Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,28)      631           1    0.0    0.0     0.0    0.2      0        16
    lexemeNewline                               Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:46:1-34            632           0    0.0    0.0     0.0    0.0      0         0
     lexeme                                     Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                      633           2    0.0    0.0     0.0    0.0      0        96
    symbolNewline                               Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:49:1-34            666           0    0.0    0.1     0.0    0.2      0       312
@@ -761,11 +763,12 @@ MAIN                                           MAIN                             
    lexeme                                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            712           0    0.0    0.0     0.0    0.0      0         0
     lexeme                                     Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                      713           1    0.0    0.0     0.0    0.0      0        48
   parseVarName                                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42             638           1    0.0    0.0     0.0    0.0      0        48
- CAF                                           Synapse.Syntax.Judgment                       <entire-module>                                       583           0    0.0    0.0     0.0    0.0      0        80
-  ppr                                          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(34,3)-(37,34)        1220           1    0.0    0.0     0.0    0.0      0        64
+ CAF                                           Synapse.Syntax.Judgment                       <entire-module>                                       583           0    0.0    0.0     0.0    0.0      0        16
+  ppr                                          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(43,3)-(46,34)        1221           1    0.0    0.0     0.0    0.0      0         0
  CAF                                           Synapse.Syntax.Rule                           <entire-module>                                       582           0    0.0    0.2     0.0    0.2      0       576
-  ppr                                          Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:(15,3)-(26,60)            1228           0    0.0    0.1     0.0    0.1      0       192
- CAF                                           Synapse.Syntax.System                         <entire-module>                                       581           0    0.0    0.0     0.0    0.0      0         0
+  ppr                                          Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:(15,3)-(26,60)            1232           0    0.0    0.1     0.0    0.1      0       192
+ CAF                                           Synapse.Syntax.System                         <entire-module>                                       581           0    0.0    0.4     0.0    0.5      0      1344
+  ppr                                          Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:(21,3)-(31,5)           1214           0    0.0    0.1     0.0    0.1      0       240
  CAF                                           Synapse.Syntax.Parser.Judgment                <entire-module>                                       580           0    0.0    0.0     0.0    0.2      0       112
   parseJudgment                                Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(17,1)-(21,62)  975           1    0.0    0.0     0.0    0.0      0         0
    parserFailure                               Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(101,1)-(102,108) 1032           1    0.0    0.0     0.0    0.0      0        72
@@ -803,7 +806,7 @@ MAIN                                           MAIN                             
  CAF                                           Main                                          <entire-module>                                       577           0    0.0    0.0     0.0    0.0      0        16
   main                                         Main                                          src/Main.hs:(12,1)-(17,53)                            590           1    0.0    0.0     0.0    0.0      0         0
  CAF                                           Unbound.Generics.LocallyNameless.Name         <entire-module>                                       576           0    0.0    0.0     0.0    0.0      0        16
-  makeName                                     Unbound.Generics.LocallyNameless.Name         src/Unbound/Generics/LocallyNameless/Name.hs:72:1-13 1238           1    0.0    0.0     0.0    0.0      0         0
+  makeName                                     Unbound.Generics.LocallyNameless.Name         src/Unbound/Generics/LocallyNameless/Name.hs:72:1-13 1242           1    0.0    0.0     0.0    0.0      0         0
  CAF                                           Unbound.Generics.LocallyNameless.Fresh        <entire-module>                                       575           0    0.0    0.0     0.0    0.0      0         0
  CAF                                           Unbound.Generics.LocallyNameless.LFresh       <entire-module>                                       574           0    0.0    0.0     0.0    0.0      0         0
  CAF                                           Unbound.Generics.LocallyNameless.Alpha        <entire-module>                                       573           0    0.0    0.0     0.0    0.0      0         0
@@ -990,7 +993,7 @@ MAIN                                           MAIN                             
  CAF                                           GHC.IO.Buffer                                 <entire-module>                                       393           0    0.0    0.0     0.0    0.0      0         0
  CAF                                           GHC.IO.BufferedIO                             <entire-module>                                       392           0    0.0    0.0     0.0    0.0      0         0
  CAF                                           GHC.IO.Device                                 <entire-module>                                       391           0    0.0    0.0     0.0    0.0      0         0
- CAF                                           GHC.IO.Encoding                               <entire-module>                                       390           0    0.0    0.9     0.0    0.9      0      2976
+ CAF                                           GHC.IO.Encoding                               <entire-module>                                       390           0    0.0    0.8     0.0    0.8      0      2976
  CAF                                           GHC.IO.Encoding.Failure                       <entire-module>                                       389           0    0.0    0.0     0.0    0.0      0         0
  CAF                                           GHC.IO.Encoding.Iconv                         <entire-module>                                       388           0    0.0    0.1     0.0    0.1      0       200
  CAF                                           GHC.IO.Encoding.Latin1                        <entire-module>                                       387           0    0.0    0.0     0.0    0.0      0         0
@@ -1001,7 +1004,7 @@ MAIN                                           MAIN                             
  CAF                                           GHC.IO.Exception                              <entire-module>                                       382           0    0.0    0.1     0.0    0.1      0       496
  CAF                                           GHC.IO.FD                                     <entire-module>                                       381           0    0.0    0.0     0.0    0.0      0        16
  CAF                                           GHC.IO.Handle                                 <entire-module>                                       380           0    0.0    0.0     0.0    0.0      0         0
- CAF                                           GHC.IO.Handle.FD                              <entire-module>                                       379           0    0.0   10.4     0.0   10.4      0     34704
+ CAF                                           GHC.IO.Handle.FD                              <entire-module>                                       379           0    0.0    9.9     0.0    9.9      0     34704
  CAF                                           GHC.IO.Handle.Internals                       <entire-module>                                       378           0    0.0    0.0     0.0    0.0      0        24
  CAF                                           GHC.IO.Handle.Text                            <entire-module>                                       377           0    0.0    0.0     0.0    0.0      0         0
  CAF                                           GHC.IO.Handle.Types                           <entire-module>                                       376           0    0.0    0.0     0.0    0.0      0         0
@@ -1080,45 +1083,45 @@ MAIN                                           MAIN                             
  CAF                                           GHC.Tuple                                     <entire-module>                                       303           0    0.0    0.0     0.0    0.0      0         0
  CAF                                           GHC.Types                                     <entire-module>                                       302           0    0.0    0.0     0.0    0.0      0         0
  DONT_CARE                                     MAIN                                          <built-in>                                            298           0    0.0    0.0     0.0    0.0      0         0
- GC                                            GC                                            <built-in>                                            300           0    0.0    0.3     0.0    0.3      0      1096
+ GC                                            GC                                            <built-in>                                            300           0   33.3    0.3    33.3    0.3      1      1096
  IDLE                                          IDLE                                          <built-in>                                            296           0    0.0    0.0     0.0    0.0      0         0
- OVERHEAD_of                                   PROFILING                                     <built-in>                                            299           0    0.0    2.0     0.0    2.0      0      6600
+ OVERHEAD_of                                   PROFILING                                     <built-in>                                            299           0    0.0    1.9     0.0    1.9      0      6816
  PINNED                                        SYSTEM                                        <built-in>                                            297           0    0.0    0.0     0.0    0.0      0         0
- SYSTEM                                        SYSTEM                                        <built-in>                                            301           0   50.0   10.4    50.0   10.4      1     34736
- main                                          Main                                          src/Main.hs:(12,1)-(17,53)                            591           0   50.0   15.5    50.0   71.9      1     51840
-  ppr                                          Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:(21,3)-(26,5)           1213           1    0.0    0.5     0.0    1.4      0      1736
-   ppr                                         Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:(15,3)-(26,60)            1224           1    0.0    0.2     0.0    0.3      0       640
-    ppr                                        Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(40,3)-(44,59)        1230           1    0.0    0.0     0.0    0.1      0       128
-     ppr                                       Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(112,3)-(116,38)          1234           2    0.0    0.0     0.0    0.0      0        16
-      ppr                                      Synapse.Ppr                                   src/Synapse/Ppr.hs:17:29-45                          1236           0    0.0    0.0     0.0    0.0      0       128
-     judgmentSpec                              Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:24:5-16               1231           1    0.0    0.0     0.0    0.0      0         0
-     judgmentSpecParts                         Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:17:5-21               1232           1    0.0    0.0     0.0    0.0      0         0
-     judgmentSpots                             Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:25:5-17               1233           1    0.0    0.0     0.0    0.0      0         0
-    ruleConclusion                             Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:10:5-18                   1229           1    0.0    0.0     0.0    0.0      0         0
-    ruleName                                   Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:8:5-12                    1226           1    0.0    0.0     0.0    0.0      0         0
-    rulePremises                               Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:9:5-16                    1225           1    0.0    0.0     0.0    0.0      0         0
-   systemGrammar                               Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:15:5-17                 1216           1    0.0    0.0     0.0    0.0      0         0
-   systemJudgmentSpecs                         Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:16:5-23                 1219           1    0.0    0.0     0.0    0.0      0         0
-   systemRules                                 Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:17:5-15                 1223           1    0.0    0.0     0.0    0.0      0         0
-   ppr                                         Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(34,3)-(37,34)        1221           0    0.0    0.1     0.0    0.1      0       408
-    judgmentSpecParts                          Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:17:5-21               1222           1    0.0    0.0     0.0    0.0      0         0
-   ppr                                         Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(49,3)-(54,36)            1215           0    0.0    0.3     0.0    0.5      0       944
-    ppr                                        Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:57:3-33                   1217           1    0.0    0.0     0.0    0.2      0         0
-     ppr                                       Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(112,3)-(116,38)          1218           3    0.0    0.2     0.0    0.2      0       616
-  runParser                                    Text.Megaparsec                               Text/Megaparsec.hs:238:1-61                           593           1    0.0    0.0     0.0   55.0      0       104
+ SYSTEM                                        SYSTEM                                        <built-in>                                            301           0   33.3    9.9    33.3    9.9      1     34736
+ main                                          Main                                          src/Main.hs:(12,1)-(17,53)                            591           0    0.0   17.4    33.3   72.7      0     61224
+  ppr                                          Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:(21,3)-(31,5)           1213           1    0.0    1.7     0.0    3.0      0      5840
+   ppr                                         Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:(15,3)-(26,60)            1228           1    0.0    0.2     0.0    0.3      0       640
+    ppr                                        Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(49,3)-(53,59)        1234           1    0.0    0.0     0.0    0.1      0       128
+     ppr                                       Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(112,3)-(116,38)          1238           2    0.0    0.0     0.0    0.1      0       144
+      ppr                                      Synapse.Ppr                                   src/Synapse/Ppr.hs:17:29-45                          1240           0    0.0    0.0     0.0    0.0      0       128
+     judgmentSpec                              Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:26:5-16               1235           1    0.0    0.0     0.0    0.0      0         0
+     judgmentSpecParts                         Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:19:5-21               1236           1    0.0    0.0     0.0    0.0      0         0
+     judgmentSpots                             Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:27:5-17               1237           1    0.0    0.0     0.0    0.0      0         0
+    ruleConclusion                             Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:10:5-18                   1233           1    0.0    0.0     0.0    0.0      0         0
+    ruleName                                   Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:8:5-12                    1230           1    0.0    0.0     0.0    0.0      0         0
+    rulePremises                               Synapse.Syntax.Rule                           src/Synapse/Syntax/Rule.hs:9:5-16                    1229           1    0.0    0.0     0.0    0.0      0         0
+   systemGrammar                               Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:15:5-17                 1217           1    0.0    0.0     0.0    0.0      0         0
+   systemJudgmentSpecs                         Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:16:5-23                 1220           1    0.0    0.0     0.0    0.0      0         0
+   systemRules                                 Synapse.Syntax.System                         src/Synapse/Syntax/System.hs:17:5-15                 1227           1    0.0    0.0     0.0    0.0      0         0
+   ppr                                         Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(43,3)-(46,34)        1222           0    0.0    0.2     0.0    0.3      0       840
+    mergeSpec                                  Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:(36,1)-(40,17)        1223           1    0.0    0.1     0.0    0.1      0       200
+   ppr                                         Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(49,3)-(54,45)            1216           0    0.0    0.5     0.0    0.7      0      1848
+    ppr                                        Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:57:3-33                   1218           1    0.0    0.0     0.0    0.2      0         0
+     ppr                                       Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(112,3)-(116,38)          1219           3    0.0    0.2     0.0    0.2      0       616
+  runParser                                    Text.Megaparsec                               Text/Megaparsec.hs:238:1-61                           593           1    0.0    0.0    33.3   52.4      0       104
    initialState                                Text.Megaparsec.State                         Text/Megaparsec/State.hs:(89,1)-(95,5)                611           1    0.0    0.0     0.0    0.0      0         0
-   runParser'                                  Text.Megaparsec                               Text/Megaparsec.hs:252:1-42                           594           1    0.0    0.0     0.0   55.0      0        80
-    runParserT'                                Text.Megaparsec                               Text/Megaparsec.hs:(282,1)-(296,54)                   597           1    0.0    0.0     0.0   54.9      0         0
-     runParsecT                                Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:(697,1)-(702,59)          598           1    0.0    0.0     0.0   54.9      0        64
+   runParser'                                  Text.Megaparsec                               Text/Megaparsec.hs:252:1-42                           594           1    0.0    0.0    33.3   52.3      0        80
+    runParserT'                                Text.Megaparsec                               Text/Megaparsec.hs:(282,1)-(296,54)                   597           1    0.0    0.0    33.3   52.3      0         0
+     runParsecT                                Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:(697,1)-(702,59)          598           1    0.0    0.0    33.3   52.3      0        64
       unParser                                 Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  599           1    0.0    0.0     0.0    0.0      0         0
-      parseSystem                              Synapse.Syntax.Parser.System                  src/Synapse/Syntax/Parser/System.hs:(17,1)-(24,36)    600           0    0.0    0.1     0.0   54.9      0       192
+      parseSystem                              Synapse.Syntax.Parser.System                  src/Synapse/Syntax/Parser/System.hs:(17,1)-(24,36)    600           0    0.0    0.1    33.3   52.3      0       192
        unParser                                Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  601           2    0.0    0.0     0.0    0.0      0         0
-       keywordNewline                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:52:1-77            606           0    0.0    1.3     0.0   40.2      0      4416
+       keywordNewline                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:52:1-77            606           0    0.0    1.3     0.0   38.3      0      4416
         unParser                               Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  610          21    0.0    0.0     0.0    0.0      0         0
-        lexemeNewline                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:46:1-34            607           0    0.0    0.0     0.0   38.9      0         0
-         lexeme                                Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                      608          12    0.0    2.0     0.0   38.9      0      6600
+        lexemeNewline                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:46:1-34            607           0    0.0    0.0     0.0   37.0      0         0
+         lexeme                                Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                      608          12    0.0    1.9     0.0   37.0      0      6600
           unParser                             Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  609          65    0.0    0.0     0.0    0.0      0         0
-          parserGuard                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(105,1)-(106,73)  1052           1    0.0    0.1     0.0    0.9      0       168
+          parserGuard                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(105,1)-(106,73)  1052           1    0.0    0.0     0.0    0.9      0       168
            unParser                            Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1053           3    0.0    0.0     0.0    0.0      0         0
            scNewline                           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)    1054           0    0.0    0.0     0.0    0.8      0         0
             skipBlockComment                   Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)       1062           0    0.0    0.1     0.0    0.3      0       304
@@ -1141,21 +1144,21 @@ MAIN                                           MAIN                             
              skipLineComment                   Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)         1058           0    0.0    0.0     0.0    0.0      0        96
               unParser                         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1059           1    0.0    0.0     0.0    0.0      0         0
           parseGrammar                         Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:40:1-33             829           0    0.0    0.0     0.0    0.0      0         0
-           parseTermSpec                       Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,29)      830           0    0.0    0.0     0.0    0.0      0         0
+           parseTermSpec                       Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,28)      830           0    0.0    0.0     0.0    0.0      0         0
             symbolNewline                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:49:1-34            831           0    0.0    0.0     0.0    0.0      0         0
              symbol                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     832           0    0.0    0.0     0.0    0.0      0         0
           parseJudgmentForm                    Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:34:1-47         839           0    0.0    0.0     0.0    0.0      0        72
            unParser                            Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  840           1    0.0    0.0     0.0    0.0      0         0
            lexeme                              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            843           0    0.0    0.0     0.0    0.0      0         0
-          parseRuleName                        Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(29,1)-(33,11)     1080           0    0.0    0.0     0.0   14.3      0         0
-           parserGuard                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(105,1)-(106,73)  1106           0    0.0    0.0     0.0   11.5      0         0
-            scNewline                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)    1107           0    0.0    0.0     0.0   11.5      0         0
-             skipBlockComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)       1108           0    0.0    0.7     0.0   10.7      0      2224
-              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1109           0    0.0    2.9     0.0   10.0      0      9600
+          parseRuleName                        Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(29,1)-(33,11)     1080           0    0.0    0.0     0.0   13.6      0         0
+           parserGuard                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(105,1)-(106,73)  1106           0    0.0    0.0     0.0   10.9      0         0
+            scNewline                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)    1107           0    0.0    0.0     0.0   10.9      0         0
+             skipBlockComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)       1108           0    0.0    0.6     0.0   10.2      0      2224
+              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1109           0    0.0    2.7     0.0    9.5      0      9600
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1135         124    0.0    0.0     0.0    0.0      0         0
-               parseRule                       Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(15,1)-(21,38)     1110           0    0.0    0.7     0.0    5.7      0      2392
+               parseRule                       Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(15,1)-(21,38)     1110           0    0.0    0.7     0.0    5.5      0      2392
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1111          18    0.0    0.0     0.0    0.0      0         0
-                parseHLine                     Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(24,1)-(26,53)     1195           0    0.0    0.2     0.0    0.2      0       504
+                parseHLine                     Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(24,1)-(26,53)     1195           0    0.0    0.1     0.0    0.2      0       504
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1196           4    0.0    0.0     0.0    0.0      0         0
                  parseJudgment                 Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(17,1)-(21,62) 1197           0    0.0    0.0     0.0    0.1      0         0
                   parserFailure                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(101,1)-(102,108) 1198           0    0.0    0.0     0.0    0.1      0         0
@@ -1172,45 +1175,45 @@ MAIN                                           MAIN                             
                              symbol            Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20           1209           0    0.0    0.0     0.0    0.1      0         0
                               symbol           Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                    1210           0    0.0    0.1     0.0    0.1      0       232
                                unParser        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1211           3    0.0    0.0     0.0    0.0      0         0
-                parseJudgment                  Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(17,1)-(21,62) 1113           0    0.0    0.0     0.0    4.8      0       144
+                parseJudgment                  Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(17,1)-(21,62) 1113           0    0.0    0.0     0.0    4.6      0       144
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1114           4    0.0    0.0     0.0    0.0      0         0
-                 parseFromJudgmentSpec         Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(24,1)-(26,25) 1116           0    0.0    0.6     0.0    4.7      0      2080
+                 parseFromJudgmentSpec         Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(24,1)-(26,25) 1116           0    0.0    0.6     0.0    4.5      0      2080
                   unParser                     Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1117          19    0.0    0.0     0.0    0.0      0         0
-                  parseFromPart                Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(29,1)-(30,62) 1119           0    0.0    0.4     0.0    2.8      0      1248
+                  parseFromPart                Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(29,1)-(30,62) 1119           0    0.0    0.4     0.0    2.6      0      1248
                    unParser                    Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1120           6    0.0    0.0     0.0    0.0      0         0
                    keyword                     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:61:1-63           1139           0    0.0    0.4     0.0    0.4      0      1280
                     unParser                   Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1140          16    0.0    0.0     0.0    0.0      0         0
                     parseVarName               Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42            1141           0    0.0    0.0     0.0    0.0      0         0
                     sc                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)    1142           0    0.0    0.0     0.0    0.0      0         0
-                   parseTerm                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)     1121           0    0.0    0.1     0.0    2.0      0       176
+                   parseTerm                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)     1121           0    0.0    0.1     0.0    1.9      0       176
                     unParser                   Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1122          10    0.0    0.0     0.0    0.0      0         0
-                    parseVar                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:17:1-52            1123           0    0.0    0.2     0.0    2.0      0       768
+                    parseVar                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:17:1-52            1123           0    0.0    0.2     0.0    1.9      0       768
                      unParser                  Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1124           4    0.0    0.0     0.0    0.0      0         0
                      lexeme                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20           1125           0    0.0    0.0     0.0    0.0      0         0
                      parseVarName              Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42            1126           0    0.0    0.1     0.0    1.7      0       416
                       unParser                 Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1127           4    0.0    0.0     0.0    0.0      0         0
-                      parseIdentifier          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41           1128           0    0.0    0.0     0.0    1.6      0         0
-                       parseIdentifierWith     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)    1129           0    0.0    1.3     0.0    1.6      0      4440
+                      parseIdentifier          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41           1128           0    0.0    0.0     0.0    1.5      0         0
+                       parseIdentifierWith     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)    1129           0    0.0    1.3     0.0    1.5      0      4440
                         unParser               Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1130          60    0.0    0.0     0.0    0.0      0         0
                         isInt                  Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(94,1)-(95,29)    1131           2    0.0    0.0     0.0    0.0      0         0
                          isNatural             Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23           1132           0    0.0    0.0     0.0    0.0      0       160
-                        string2Name            Unbound.Generics.LocallyNameless.Name         src/Unbound/Generics/LocallyNameless/Name.hs:64:1-28 1237           2    0.0    0.0     0.0    0.0      0        64
+                        string2Name            Unbound.Generics.LocallyNameless.Name         src/Unbound/Generics/LocallyNameless/Name.hs:64:1-28 1241           2    0.0    0.0     0.0    0.0      0        64
                         keyword                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:61:1-63           1143           0    0.0    0.2     0.0    0.2      0       752
                          unParser              Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1144          10    0.0    0.0     0.0    0.0      0         0
                          sc                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)    1145           0    0.0    0.0     0.0    0.0      0         0
                         sc                     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)    1133           0    0.0    0.0     0.0    0.0      0         0
                    parseVarName                Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42            1138           0    0.0    0.0     0.0    0.0      0         0
-                  parseTerm                    Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)     1157           0    0.0    0.0     0.0    1.3      0        88
+                  parseTerm                    Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)     1157           0    0.0    0.0     0.0    1.2      0        88
                    unParser                    Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1158           5    0.0    0.0     0.0    0.0      0         0
-                   parseVar                    Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:17:1-52            1159           0    0.0    0.1     0.0    1.3      0       384
+                   parseVar                    Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:17:1-52            1159           0    0.0    0.1     0.0    1.2      0       384
                     unParser                   Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1160           2    0.0    0.0     0.0    0.0      0         0
                     lexeme                     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20           1161           0    0.0    0.0     0.0    0.0      0         0
-                    parseVarName               Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42            1162           0    0.0    0.1     0.0    1.2      0       232
+                    parseVarName               Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42            1162           0    0.0    0.1     0.0    1.1      0       232
                      unParser                  Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1163           3    0.0    0.0     0.0    0.0      0         0
-                     parseIntLit               Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:23:1-40            1164           0    0.0    0.1     0.0    1.1      0       384
+                     parseIntLit               Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:23:1-40            1164           0    0.0    0.1     0.0    1.0      0       384
                       unParser                 Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1165           2    0.0    0.0     0.0    0.0      0         0
                       lexeme                   Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20           1166           0    0.0    0.0     0.0    0.0      0         0
-                      parseInt                 Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(64,1)-(72,26)    1167           0    0.0    0.3     0.0    1.0      0       968
+                      parseInt                 Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(64,1)-(72,26)    1167           0    0.0    0.3     0.0    0.9      0       968
                        unParser                Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1168          13    0.0    0.0     0.0    0.0      0         0
                        parseSymbol             Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:20:1-47            1169           0    0.0    0.1     0.0    0.7      0       384
                         unParser               Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1170           2    0.0    0.0     0.0    0.0      0         0
@@ -1242,28 +1245,28 @@ MAIN                                           MAIN                             
                               unParser         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1194           3    0.0    0.0     0.0    0.0      0         0
                 parseVarName                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42            1112           0    0.0    0.0     0.0    0.0      0         0
                parseVarName                    Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42            1156           0    0.0    0.0     0.0    0.0      0         0
-               sc                              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)    1134           0    0.0    0.0     0.0    1.4      0         0
-                skipLineComment                Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)         1136           0    0.0    1.4     0.0    1.4      0      4704
+               sc                              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)    1134           0    0.0    0.0     0.0    1.3      0         0
+                skipLineComment                Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)         1136           0    0.0    1.3     0.0    1.3      0      4704
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1137          21    0.0    0.0     0.0    0.0      0         0
                skipLineComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)         1155           0    0.0    0.0     0.0    0.0      0         0
              skipLineComment                   Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)         1148           0    0.0    0.0     0.0    0.1      0        96
               space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1151           0    0.0    0.1     0.0    0.1      0       288
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1152           2    0.0    0.0     0.0    0.0      0         0
-             space                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1146           0    0.0    0.5     0.0    0.7      0      1808
+             space                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1146           0    0.0    0.5     0.0    0.6      0      1808
               unParser                         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1147          29    0.0    0.0     0.0    0.0      0         0
               skipBlockComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)       1153           0    0.0    0.1     0.0    0.1      0       192
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1154           2    0.0    0.0     0.0    0.0      0         0
               skipLineComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)         1149           0    0.0    0.1     0.0    0.1      0       192
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1150           2    0.0    0.0     0.0    0.0      0         0
-           symbol                              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20           1081           0    0.0    0.0     0.0    2.9      0         0
-            symbol                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                    1082           0    0.0    0.2     0.0    2.9      0       592
+           symbol                              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20           1081           0    0.0    0.0     0.0    2.7      0         0
+            symbol                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                    1082           0    0.0    0.2     0.0    2.7      0       592
              unParser                          Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1083           6    0.0    0.0     0.0    0.0      0         0
-             sc                                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)    1084           0    0.0    0.0     0.0    2.7      0         0
-              skipBlockComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)       1092           0    0.0    0.3     0.0    1.5      0       912
-               space                           Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1095           0    0.0    0.5     0.0    1.2      0      1528
+             sc                                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)    1084           0    0.0    0.0     0.0    2.6      0         0
+              skipBlockComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)       1092           0    0.0    0.3     0.0    1.4      0       912
+               space                           Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1095           0    0.0    0.4     0.0    1.2      0      1528
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1096          13    0.0    0.0     0.0    0.0      0         0
-                parseIdentifier                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41           1098           0    0.0    0.0     0.0    0.8      0         0
-                 parseIdentifierWith           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)    1099           0    0.0    0.7     0.0    0.8      0      2496
+                parseIdentifier                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41           1098           0    0.0    0.0     0.0    0.7      0         0
+                 parseIdentifierWith           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)    1099           0    0.0    0.7     0.0    0.7      0      2496
                   unParser                     Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1100          49    0.0    0.0     0.0    0.0      0         0
                   isInt                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(94,1)-(95,29)    1101           1    0.0    0.0     0.0    0.0      0         0
                    isNatural                   Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23           1102           0    0.0    0.0     0.0    0.0      0        80
@@ -1274,25 +1277,25 @@ MAIN                                           MAIN                             
               skipLineComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)         1087           0    0.0    0.3     0.0    0.4      0       912
                space                           Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1090           0    0.0    0.1     0.0    0.1      0       432
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1091           3    0.0    0.0     0.0    0.0      0         0
-              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1085           0    0.0    0.6     0.0    0.8      0      2040
+              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)              1085           0    0.0    0.6     0.0    0.7      0      2040
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1086          33    0.0    0.0     0.0    0.0      0         0
                skipBlockComment                Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)       1093           0    0.0    0.1     0.0    0.1      0       288
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1094           3    0.0    0.0     0.0    0.0      0         0
                skipLineComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)         1088           0    0.0    0.1     0.0    0.1      0       288
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1089           3    0.0    0.0     0.0    0.0      0         0
-          parseSpecPart                        Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(37,1)-(39,49)  845           0    0.0    0.5     0.0    6.5      0      1744
+          parseSpecPart                        Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(37,1)-(39,49)  845           0    0.0    0.5     0.0    6.2      0      1744
            unParser                            Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  846          15    0.0    0.0     0.0    0.0      0         0
-           symbol                              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20            850           0    0.0    0.0     0.0    6.0      0         0
-            symbol                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     851           0    0.0    0.4     0.0    6.0      0      1200
+           symbol                              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20            850           0    0.0    0.0     0.0    5.7      0         0
+            symbol                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     851           0    0.0    0.3     0.0    5.7      0      1200
              unParser                          Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  852          12    0.0    0.0     0.0    0.0      0         0
-             parseJudgmentIdentifier           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:78:1-48            872           0    0.0    0.0     0.0    2.6      0         0
-              parseIdentifierWith              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)     873           0    0.0    0.7     0.0    2.6      0      2184
+             parseJudgmentIdentifier           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:78:1-48            872           0    0.0    0.0     0.0    2.4      0         0
+              parseIdentifierWith              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)     873           0    0.0    0.6     0.0    2.4      0      2184
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  874          29    0.0    0.0     0.0    0.0      0         0
                isInt                           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(94,1)-(95,29)     875           1    0.0    0.0     0.0    0.0      0         0
                 isNatural                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23            876           0    0.0    0.0     0.0    0.0      0        80
-               sc                              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)     877           0    0.0    0.0     0.0    1.9      0         0
-                skipBlockComment               Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        878           0    0.0    0.2     0.0    1.4      0       608
-                 space                         Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               879           0    0.0    0.7     0.0    1.2      0      2248
+               sc                              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)     877           0    0.0    0.0     0.0    1.8      0         0
+                skipBlockComment               Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        878           0    0.0    0.2     0.0    1.3      0       608
+                 space                         Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               879           0    0.0    0.6     0.0    1.1      0      2248
                   unParser                     Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  891          24    0.0    0.0     0.0    0.0      0         0
                   parseJudgmentForm            Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:34:1-47         880           0    0.0    0.3     0.0    0.3      0       976
                    unParser                    Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  881          16    0.0    0.0     0.0    0.0      0         0
@@ -1303,7 +1306,7 @@ MAIN                                           MAIN                             
                   parseJudgmentSpec            Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(42,1)-(45,32)  904           0    0.0    0.0     0.0    0.0      0        48
                    unParser                    Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  905           1    0.0    0.0     0.0    0.0      0         0
                    parseGrammar                Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:40:1-33             906           0    0.0    0.0     0.0    0.0      0         0
-                    parseTermSpec              Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,29)      907           0    0.0    0.0     0.0    0.0      0         0
+                    parseTermSpec              Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,28)      907           0    0.0    0.0     0.0    0.0      0         0
                      symbolNewline             Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:49:1-34            908           0    0.0    0.0     0.0    0.0      0         0
                   scNewline                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     899           0    0.0    0.0     0.0    0.2      0         0
                    skipLineComment             Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          900           0    0.0    0.2     0.0    0.2      0       672
@@ -1318,8 +1321,8 @@ MAIN                                           MAIN                             
                   unParser                     Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  890           1    0.0    0.0     0.0    0.0      0         0
                  skipLineComment               Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          885           0    0.0    0.0     0.0    0.0      0        96
                   unParser                     Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  886           1    0.0    0.0     0.0    0.0      0         0
-             sc                                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)     853           0    0.0    0.0     0.0    3.1      0         0
-              skipBlockComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        861           0    0.0    0.4     0.0    1.4      0      1216
+             sc                                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)     853           0    0.0    0.0     0.0    2.9      0         0
+              skipBlockComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        861           0    0.0    0.3     0.0    1.3      0      1216
                space                           Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               864           0    0.0    0.6     0.0    1.0      0      2008
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  865          18    0.0    0.0     0.0    0.0      0         0
                 parseJudgmentForm              Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:34:1-47         867           0    0.0    0.4     0.0    0.4      0      1336
@@ -1330,34 +1333,36 @@ MAIN                                           MAIN                             
                 parseJudgmentIdentifier        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:78:1-48            894           0    0.0    0.0     0.0    0.0      0         0
                  parseIdentifierWith           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)     895           0    0.0    0.0     0.0    0.0      0         0
                 skipLineComment                Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          866           0    0.0    0.0     0.0    0.0      0         0
-              skipLineComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          856           0    0.0    0.4     0.0    0.5      0      1216
+              skipLineComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          856           0    0.0    0.3     0.0    0.5      0      1216
                space                           Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               859           0    0.0    0.2     0.0    0.2      0       576
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  860           4    0.0    0.0     0.0    0.0      0         0
-              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               854           0    0.0    0.9     0.0    1.2      0      3168
+              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               854           0    0.0    0.9     0.0    1.1      0      3168
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  855          51    0.0    0.0     0.0    0.0      0         0
                skipBlockComment                Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        862           0    0.0    0.1     0.0    0.1      0       384
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  863           4    0.0    0.0     0.0    0.0      0         0
                skipLineComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          857           0    0.0    0.1     0.0    0.1      0       384
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  858           4    0.0    0.0     0.0    0.0      0         0
-          parseVarName                         Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42             818           0    0.0    0.1     0.0    7.6      0       248
+          parseVarName                         Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42             818           0    0.0    0.1     0.0    7.2      0       248
            unParser                            Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  915           2    0.0    0.0     0.0    0.0      0         0
-           parseIdentifier                     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41            916           0    0.0    0.0     0.0    5.2      0         0
-            parseIdentifierWith                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)     917           0    0.0    0.9     0.0    5.2      0      3000
+           parseIdentifier                     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41            916           0    0.0    0.0     0.0    5.0      0         0
+            parseIdentifierWith                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)     917           0    0.0    0.9     0.0    5.0      0      3000
              unParser                          Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  918          45    0.0    0.0     0.0    0.0      0         0
              isInt                             Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(94,1)-(95,29)     919           2    0.0    0.0     0.0    0.0      0         0
               isNatural                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23            920           0    0.0    0.0     0.0    0.0      0       160
-             sc                                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)     921           0    0.0    0.0     0.0    4.3      0         0
-              skipBlockComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        929           0    0.0    0.5     0.0    2.8      0      1520
-               space                           Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               932           0    0.0    1.2     0.0    2.4      0      4104
+             sc                                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)     921           0    0.0    0.0     0.0    4.1      0         0
+              skipBlockComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        929           0    0.0    0.4     0.0    2.7      0      1520
+               space                           Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               932           0    0.0    1.2     0.0    2.3      0      4104
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  933          46    0.0    0.0     0.0    0.0      0         0
                 parseGrammar                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:40:1-33             951           0    0.0    0.0     0.0    0.0      0         0
-                 parseTermSpec                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,29)      952           0    0.0    0.0     0.0    0.0      0         0
+                 parseTermSpec                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,28)      952           0    0.0    0.0     0.0    0.0      0         0
                   symbolNewline                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:49:1-34            953           0    0.0    0.0     0.0    0.0      0         0
                    symbol                      Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     954           0    0.0    0.0     0.0    0.0      0         0
                 parseJudgmentSpec              Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(42,1)-(45,32)  936           0    0.0    0.1     0.0    0.7      0       424
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  947           9    0.0    0.0     0.0    0.0      0         0
                  parseJudgmentArity            Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(48,1)-(54,53)  937           0    0.0    0.5     0.0    0.6      0      1608
                   unParser                     Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  938          14    0.0    0.0     0.0    0.0      0         0
+                  lookupTermSpec               Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:(69,1)-(72,31)            1224           2    0.0    0.0     0.0    0.1      0        64
+                   getVarName                  Synapse.Syntax.Term                           src/Synapse/Syntax/Term.hs:76:1-31                   1226           0    0.0    0.0     0.0    0.0      0       112
                   lexeme                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            946           0    0.0    0.0     0.0    0.0      0         0
                   scNewline                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     939           0    0.0    0.0     0.0    0.0      0         0
                   symbol                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20            942           0    0.0    0.0     0.0    0.1      0         0
@@ -1372,15 +1377,15 @@ MAIN                                           MAIN                             
               skipLineComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          924           0    0.0    0.3     0.0    0.4      0       912
                space                           Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               927           0    0.0    0.1     0.0    0.1      0       432
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  928           3    0.0    0.0     0.0    0.0      0         0
-              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               922           0    0.0    0.9     0.0    1.0      0      2936
+              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               922           0    0.0    0.8     0.0    1.0      0      2936
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  923          47    0.0    0.0     0.0    0.0      0         0
                skipBlockComment                Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        930           0    0.0    0.1     0.0    0.1      0       288
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  931           3    0.0    0.0     0.0    0.0      0         0
                skipLineComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          925           0    0.0    0.1     0.0    0.1      0       288
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  926           3    0.0    0.0     0.0    0.0      0         0
-           scNewline                           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     819           0    0.0    0.0     0.0    2.3      0         0
-            skipBlockComment                   Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        820           0    0.0    0.0     0.0    2.3      0         0
-             space                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               821           0    0.0    0.3     0.0    2.3      0      1080
+           scNewline                           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     819           0    0.0    0.0     0.0    2.2      0         0
+            skipBlockComment                   Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        820           0    0.0    0.0     0.0    2.2      0         0
+             space                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               821           0    0.0    0.3     0.0    2.2      0      1080
               unParser                         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  822          10    0.0    0.0     0.0    0.0      0         0
               parseRule                        Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(15,1)-(21,38)      971           1    0.0    0.0     0.0    0.4      0       144
                parseJudgment                   Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(17,1)-(21,62)  976           0    0.0    0.1     0.0    0.4      0       232
@@ -1389,23 +1394,23 @@ MAIN                                           MAIN                             
                   keyword                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:61:1-63           1017           2    0.0    0.0     0.0    0.0      0       128
                    lexeme                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20           1018           0    0.0    0.0     0.0    0.0      0         0
                   lexeme                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            990           0    0.0    0.0     0.0    0.0      0         0
-                 judgmentSpecParts             Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:17:5-21                985           2    0.0    0.0     0.0    0.0      0         0
+                 judgmentSpecParts             Synapse.Syntax.Judgment                       src/Synapse/Syntax/Judgment.hs:19:5-21                985           2    0.0    0.0     0.0    0.0      0         0
                  lexeme                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            983           0    0.0    0.0     0.0    0.0      0         0
               parseGrammar                     Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:40:1-33             823           0    0.0    0.0     0.0    0.0      0         0
-               parseTermSpec                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,29)      824           0    0.0    0.0     0.0    0.0      0         0
+               parseTermSpec                   Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,28)      824           0    0.0    0.0     0.0    0.0      0         0
                 symbolNewline                  Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:49:1-34            825           0    0.0    0.0     0.0    0.0      0         0
                  symbol                        Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     826           0    0.0    0.0     0.0    0.0      0         0
-              parseJudgmentSpec                Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(42,1)-(45,32)  833           0    0.0    0.3     0.0    1.5      0       960
+              parseJudgmentSpec                Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(42,1)-(45,32)  833           0    0.0    0.3     0.0    1.4      0       960
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  834           5    0.0    0.0     0.0    0.0      0         0
                parseJudgmentArity              Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(48,1)-(54,53)  909           4    0.0    0.1     0.0    0.1      0       328
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  910           1    0.0    0.0     0.0    0.0      0         0
                 lexeme                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            914           0    0.0    0.0     0.0    0.0      0         0
                 symbol                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20            940           0    0.0    0.0     0.0    0.0      0       104
                  symbol                        Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     941           0    0.0    0.0     0.0    0.0      0        48
-               parseJudgmentForm               Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:34:1-47         955           0    0.0    0.1     0.0    1.1      0       408
+               parseJudgmentForm               Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:34:1-47         955           0    0.0    0.1     0.0    1.0      0       408
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  956           2    0.0    0.0     0.0    0.0      0         0
                 lexeme                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            957           0    0.0    0.0     0.0    0.0      0         0
-                parseSpecPart                  Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(37,1)-(39,49)  958           0    0.0    0.2     0.0    1.0      0       504
+                parseSpecPart                  Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(37,1)-(39,49)  958           0    0.0    0.1     0.0    0.9      0       504
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  959           4    0.0    0.0     0.0    0.0      0         0
                  symbol                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:58:1-20            960           0    0.0    0.0     0.0    0.8      0         0
                   symbol                       Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     961           0    0.0    0.1     0.0    0.8      0       296
@@ -1417,24 +1422,24 @@ MAIN                                           MAIN                             
                       isNatural                Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23            967           0    0.0    0.0     0.0    0.0      0        80
                      parseIdentifier           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41            968           0    0.0    0.0     0.0    0.0      0         0
                      sc                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)     969           0    0.0    0.0     0.0    0.0      0         0
-          scNewline                            Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     614           0    0.0    0.0     0.0    7.6      0         0
-           skipBlockComment                    Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        623           0    0.0    0.5     0.0    5.8      0      1616
+          scNewline                            Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     614           0    0.0    0.0     0.0    7.2      0         0
+           skipBlockComment                    Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        623           0    0.0    0.5     0.0    5.5      0      1616
             unParser                           Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  624           1    0.0    0.0     0.0    0.0      0         0
-            space                              Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               625           0    0.0    1.3     0.0    5.4      0      4328
+            space                              Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               625           0    0.0    1.2     0.0    5.1      0      4328
              unParser                          Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  626          51    0.0    0.0     0.0    0.0      0         0
              parseGrammar                      Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:40:1-33             814           0    0.0    0.0     0.0    0.0      0         0
-              parseTermSpec                    Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,29)      815           0    0.0    0.0     0.0    0.0      0         0
+              parseTermSpec                    Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,28)      815           0    0.0    0.0     0.0    0.0      0         0
                symbolNewline                   Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:49:1-34            816           0    0.0    0.0     0.0    0.0      0         0
                 symbol                         Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     817           0    0.0    0.0     0.0    0.0      0         0
-             parseRule                         Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(15,1)-(21,38)      972           0    0.0    0.4     0.0    3.7      0      1480
+             parseRule                         Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(15,1)-(21,38)      972           0    0.0    0.4     0.0    3.5      0      1480
               unParser                         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  973           9    0.0    0.0     0.0    0.0      0         0
               parseHLine                       Synapse.Syntax.Parser.Rule                    src/Synapse/Syntax/Parser/Rule.hs:(24,1)-(26,53)     1048           0    0.0    0.0     0.0    0.0      0        64
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1049           1    0.0    0.0     0.0    0.0      0         0
-              parseJudgment                    Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(17,1)-(21,62)  977           0    0.0    0.0     0.0    3.2      0        72
+              parseJudgment                    Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(17,1)-(21,62)  977           0    0.0    0.0     0.0    3.0      0        72
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  978           2    0.0    0.0     0.0    0.0      0         0
-               parseFromJudgmentSpec           Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(24,1)-(26,25)  981           0    0.0    0.4     0.0    3.1      0      1408
+               parseFromJudgmentSpec           Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(24,1)-(26,25)  981           0    0.0    0.4     0.0    3.0      0      1408
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  982          11    0.0    0.0     0.0    0.0      0         0
-                parseFromPart                  Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(29,1)-(30,62) 1015           0    0.0    0.1     0.0    0.5      0       448
+                parseFromPart                  Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(29,1)-(30,62) 1015           0    0.0    0.1     0.0    0.4      0       448
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1016           2    0.0    0.0     0.0    0.0      0         0
                  keyword                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:61:1-63           1020           0    0.0    0.2     0.0    0.3      0       560
                   unParser                     Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1021           1    0.0    0.0     0.0    0.0      0         0
@@ -1449,23 +1454,23 @@ MAIN                                           MAIN                             
                           unParser             Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1031           2    0.0    0.0     0.0    0.0      0         0
                   parseVarName                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42            1022           0    0.0    0.0     0.0    0.0      0         0
                  parseVarName                  Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42            1019           0    0.0    0.0     0.0    0.0      0         0
-                parseTerm                      Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)      991           0    0.0    0.0     0.0    2.2      0        88
+                parseTerm                      Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)      991           0    0.0    0.0     0.0    2.1      0        88
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  992           5    0.0    0.0     0.0    0.0      0         0
-                 parseVar                      Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:17:1-52             993           0    0.0    0.1     0.0    2.2      0       384
+                 parseVar                      Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:17:1-52             993           0    0.0    0.1     0.0    2.1      0       384
                   unParser                     Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  994           2    0.0    0.0     0.0    0.0      0         0
                   lexeme                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            995           0    0.0    0.0     0.0    0.0      0         0
-                  parseVarName                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42             996           0    0.0    0.1     0.0    2.1      0       288
+                  parseVarName                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42             996           0    0.0    0.1     0.0    2.0      0       288
                    unParser                    Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  997           3    0.0    0.0     0.0    0.0      0         0
-                   parseIntLit                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:23:1-40             998           0    0.0    0.1     0.0    2.0      0       384
+                   parseIntLit                 Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:23:1-40             998           0    0.0    0.1     0.0    1.9      0       384
                     unParser                   Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  999           2    0.0    0.0     0.0    0.0      0         0
                     lexeme                     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20           1000           0    0.0    0.0     0.0    0.0      0         0
-                    parseInt                   Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(64,1)-(72,26)    1001           0    0.0    0.3     0.0    1.9      0      1048
+                    parseInt                   Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(64,1)-(72,26)    1001           0    0.0    0.3     0.0    1.8      0      1048
                      unParser                  Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1002          12    0.0    0.0     0.0    0.0      0         0
-                     parseSymbol               Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:20:1-47            1003           0    0.0    0.1     0.0    1.6      0       384
+                     parseSymbol               Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:20:1-47            1003           0    0.0    0.1     0.0    1.5      0       384
                       unParser                 Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1004           2    0.0    0.0     0.0    0.0      0         0
                       lexeme                   Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20           1005           0    0.0    0.0     0.0    0.0      0         0
-                      parseIdentifier          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41           1006           0    0.0    0.0     0.0    1.5      0         0
-                       parseIdentifierWith     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)    1007           0    0.0    1.4     0.0    1.5      0      4800
+                      parseIdentifier          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41           1006           0    0.0    0.0     0.0    1.4      0         0
+                       parseIdentifierWith     Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)    1007           0    0.0    1.4     0.0    1.4      0      4800
                         unParser               Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                 1008          95    0.0    0.0     0.0    0.0      0         0
                         isInt                  Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(94,1)-(95,29)    1009           1    0.0    0.0     0.0    0.0      0         0
                          isNatural             Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23           1010           0    0.0    0.0     0.0    0.0      0        80
@@ -1502,20 +1507,20 @@ MAIN                                           MAIN                             
              unParser                          Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  813           2    0.0    0.0     0.0    0.0      0         0
             skipLineComment                    Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          810           0    0.0    0.1     0.0    0.1      0       192
              unParser                          Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  811           2    0.0    0.0     0.0    0.0      0         0
-       parseGrammar                            Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:40:1-33             629           0    0.0    0.0     0.0   14.7      0        72
+       parseGrammar                            Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:40:1-33             629           0    0.0    0.0    33.3   13.9      0        72
         unParser                               Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  630           1    0.0    0.0     0.0    0.0      0         0
-        parseTermSpec                          Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,29)      634           0    0.0    0.0     0.0   14.6      0         0
-         lexemeNewline                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:46:1-34            635           0    0.0    0.0     0.0    1.7      0         0
-          lexeme                               Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                      636           0    0.0    0.2     0.0    1.7      0       832
+        parseTermSpec                          Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(43,1)-(47,28)      634           0    0.0    0.0    33.3   13.9      0         0
+         lexemeNewline                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:46:1-34            635           0    0.0    0.0     0.0    1.6      0         0
+          lexeme                               Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                      636           0    0.0    0.2     0.0    1.6      0       832
            unParser                            Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  637           4    0.0    0.0     0.0    0.0      0         0
            parseVarName                        Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42             639           0    0.0    0.1     0.0    1.4      0       224
             unParser                           Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  640           2    0.0    0.0     0.0    0.0      0         0
-            parseIdentifier                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41            643           0    0.0    0.0     0.0    1.4      0         0
-             parseIdentifierWith               Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)     644           0    0.0    0.5     0.0    1.4      0      1632
+            parseIdentifier                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41            643           0    0.0    0.0     0.0    1.3      0         0
+             parseIdentifierWith               Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)     644           0    0.0    0.5     0.0    1.3      0      1632
               unParser                         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  645          24    0.0    0.0     0.0    0.0      0         0
               isInt                            Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(94,1)-(95,29)     646           1    0.0    0.0     0.0    0.0      0        16
                isNatural                       Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23            648           0    0.0    0.0     0.0    0.0      0        80
-              scNewline                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     650           0    0.0    0.0     0.0    0.9      0         0
+              scNewline                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     650           0    0.0    0.0     0.0    0.8      0         0
                skipBlockComment                Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        658           0    0.0    0.1     0.0    0.3      0       304
                 space                          Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               661           0    0.0    0.2     0.0    0.2      0       776
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  662          10    0.0    0.0     0.0    0.0      0         0
@@ -1529,9 +1534,9 @@ MAIN                                           MAIN                             
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  660           1    0.0    0.0     0.0    0.0      0         0
                 skipLineComment                Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          654           0    0.0    0.0     0.0    0.0      0        96
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  655           1    0.0    0.0     0.0    0.0      0         0
-         symbolNewline                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:49:1-34            669           0    0.0    0.0     0.0   13.0      0         0
-          symbol                               Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     670           0    0.0    0.4     0.0   13.0      0      1408
-           lexeme                              Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                      671           1    0.0    1.6     0.0   12.5      0      5232
+         symbolNewline                         Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:49:1-34            669           0    0.0    0.0    33.3   12.3      0         0
+          symbol                               Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:111:1-32                     670           0    0.0    0.4    33.3   12.3      0      1408
+           lexeme                              Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:87:1-23                      671           1    0.0    1.5    33.3   11.9      0      5232
             unParser                           Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  672          30    0.0    0.0     0.0    0.0      0         0
             lexemeNewline                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:46:1-34            698           0    0.0    0.0     0.0    0.0      0         0
             parseApp                           Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(26,1)-(31,20)      754           0    0.0    0.0     0.0    0.0      0         0
@@ -1574,31 +1579,31 @@ MAIN                                           MAIN                             
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  809           5    0.0    0.0     0.0    0.0      0         0
                 parseJudgmentSpec              Synapse.Syntax.Parser.Judgment                src/Synapse/Syntax/Parser/Judgment.hs:(42,1)-(45,32)  827           1    0.0    0.0     0.0    0.0      0        32
                  lexemeNewline                 Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:46:1-34            828           0    0.0    0.0     0.0    0.0      0         0
-            sc                                 Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)     758           0    0.0    0.0     0.0    8.5      0         0
-             skipBlockComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        767           0    0.0    0.6     0.0    6.4      0      1920
+            sc                                 Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(34,1)-(37,32)     758           0    0.0    0.0    33.3    8.1      0         0
+             skipBlockComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        767           0    0.0    0.5    33.3    6.1      0      1920
               unParser                         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  768           1    0.0    0.0     0.0    0.0      0         0
-              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               769           0    0.0    1.2     0.0    5.8      0      4064
+              space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               769           0    0.0    1.2    33.3    5.6      0      4064
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  770          40    0.0    0.0     0.0    0.0      0         0
-               parseTerm                       Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)      772           0    0.0    0.1     0.0    4.4      0       432
+               parseTerm                       Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:(13,1)-(14,71)      772           0    0.0    0.1    33.3    4.2      0       432
                 unParser                       Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  773          19    0.0    0.0     0.0    0.0      0         0
                 parseTermSpecAlt               Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:34:1-58             803           0    0.0    0.1     0.0    0.1      0       456
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  804           9    0.0    0.0     0.0    0.0      0         0
                  lexemeNewline                 Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:46:1-34            805           0    0.0    0.0     0.0    0.0      0         0
-                parseVar                       Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:17:1-52             774           0    0.0    0.3     0.0    4.2      0      1152
+                parseVar                       Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:17:1-52             774           0    0.0    0.3    33.3    4.0      0      1152
                  unParser                      Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  775           6    0.0    0.0     0.0    0.0      0         0
                  lexeme                        Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            776           0    0.0    0.0     0.0    0.0      0         0
-                 parseVarName                  Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42             777           0    0.0    0.3     0.0    3.8      0       864
+                 parseVarName                  Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:37:1-42             777           0    0.0    0.2    33.3    3.6      0       864
                   unParser                     Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  778           9    0.0    0.0     0.0    0.0      0         0
-                  parseIntLit                  Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:23:1-40             779           0    0.0    0.3     0.0    3.6      0      1152
+                  parseIntLit                  Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:23:1-40             779           0    0.0    0.3    33.3    3.4      0      1152
                    unParser                    Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  780           6    0.0    0.0     0.0    0.0      0         0
                    lexeme                      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            781           0    0.0    0.0     0.0    0.0      0         0
-                   parseInt                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(64,1)-(72,26)     782           0    0.0    1.1     0.0    3.2      0      3552
+                   parseInt                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(64,1)-(72,26)     782           0    0.0    1.0    33.3    3.1      0      3552
                     unParser                   Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  783          39    0.0    0.0     0.0    0.0      0         0
-                    parseSymbol                Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:20:1-47             784           0    0.0    0.3     0.0    2.2      0      1152
+                    parseSymbol                Synapse.Syntax.Parser.Term                    src/Synapse/Syntax/Parser/Term.hs:20:1-47             784           0    0.0    0.3    33.3    2.0      0      1152
                      unParser                  Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  785           6    0.0    0.0     0.0    0.0      0         0
                      lexeme                    Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:55:1-20            786           0    0.0    0.0     0.0    0.0      0         0
-                     parseIdentifier           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41            787           0    0.0    0.0     0.0    1.8      0         0
-                      parseIdentifierWith      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)     788           0    0.0    1.8     0.0    1.8      0      5896
+                     parseIdentifier           Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:75:1-41            787           0    0.0    0.0    33.3    1.7      0         0
+                      parseIdentifierWith      Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(81,1)-(88,44)     788           0   33.3    1.7    33.3    1.7      1      5896
                        unParser                Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  789          80    0.0    0.0     0.0    0.0      0         0
                        isInt                   Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(94,1)-(95,29)     790           2    0.0    0.0     0.0    0.0      0         0
                         isNatural              Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:98:1-23            791           0    0.0    0.0     0.0    0.0      0       160
@@ -1614,13 +1619,13 @@ MAIN                                           MAIN                             
               unParser                         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  763           1    0.0    0.0     0.0    0.0      0         0
               space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               764           0    0.0    0.2     0.0    0.2      0       720
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  765           5    0.0    0.0     0.0    0.0      0         0
-             space                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               759           0    0.0    1.2     0.0    1.4      0      3896
+             space                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               759           0    0.0    1.1     0.0    1.3      0      3896
               unParser                         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  760          62    0.0    0.0     0.0    0.0      0         0
               skipBlockComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        794           0    0.0    0.1     0.0    0.1      0       384
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  795           4    0.0    0.0     0.0    0.0      0         0
               skipLineComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          792           0    0.0    0.1     0.0    0.1      0       384
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  793           4    0.0    0.0     0.0    0.0      0         0
-            scNewline                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     683           0    0.0    0.0     0.0    1.5      0         0
+            scNewline                          Synapse.Syntax.Parser.Utils                   src/Synapse/Syntax/Parser/Utils.hs:(40,1)-(43,32)     683           0    0.0    0.0     0.0    1.4      0         0
              skipBlockComment                  Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        691           0    0.0    0.2     0.0    0.5      0       608
               space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               694           0    0.0    0.3     0.0    0.3      0      1168
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  695          13    0.0    0.0     0.0    0.0      0         0
@@ -1629,7 +1634,7 @@ MAIN                                           MAIN                             
              skipLineComment                   Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(95,1)-(96,67)          686           0    0.0    0.2     0.0    0.3      0       608
               space                            Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               689           0    0.0    0.1     0.0    0.1      0       288
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  690           2    0.0    0.0     0.0    0.0      0         0
-             space                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               684           0    0.0    0.5     0.0    0.7      0      1808
+             space                             Text.Megaparsec.Lexer                         Text/Megaparsec/Lexer.hs:(68,1)-(71,44)               684           0    0.0    0.5     0.0    0.6      0      1808
               unParser                         Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  685          29    0.0    0.0     0.0    0.0      0         0
               skipBlockComment                 Text.Megaparsec.Char.Lexer                    Text/Megaparsec/Char/Lexer.hs:(108,1)-(111,20)        692           0    0.0    0.1     0.0    0.1      0       192
                unParser                        Text.Megaparsec.Internal                      Text/Megaparsec/Internal.hs:131:5-12                  693           2    0.0    0.0     0.0    0.0      0         0

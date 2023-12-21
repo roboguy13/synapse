@@ -26,7 +26,7 @@ parseFromJudgmentSpec spec = label "judgment" . lexeme $ do
   pure $ Judgment spec ts
 
 parseFromPart :: SpecPart -> Parser (Maybe Term)
-parseFromPart ParamSpot = lexeme $ Just <$> parseTerm
+parseFromPart (ParamSpot _) = lexeme $ Just <$> parseTerm
 parseFromPart (OperatorPart x) = lexeme $ keyword x $> Nothing
 
 -- | mix _ fix _ operator
@@ -35,7 +35,7 @@ parseJudgmentForm = some (lexeme parseSpecPart)
 
 parseSpecPart :: Parser SpecPart
 parseSpecPart =
-  try (symbol "_" $> ParamSpot) <|>
+  try (symbol "_" $> ParamSpot ()) <|>
   try (fmap OperatorPart parseJudgmentIdentifier)
 
 parseJudgmentSpec :: Grammar -> Parser JudgmentSpec
@@ -48,7 +48,7 @@ parseJudgmentArity :: Grammar -> [SpecPart] -> Parser [TermSpec]
 parseJudgmentArity grammar [] = pure []
 parseJudgmentArity grammar (OperatorPart str : parts) =
   symbol str *> parseJudgmentArity grammar parts
-parseJudgmentArity grammar (ParamSpot : parts) = do
+parseJudgmentArity grammar (ParamSpot _ : parts) = do
   var <- lexeme parseVarName
   let termSpec = lookupTermSpec grammar var
   fmap (termSpec:) (parseJudgmentArity grammar parts)

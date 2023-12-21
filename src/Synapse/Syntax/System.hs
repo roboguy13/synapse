@@ -20,8 +20,13 @@ data System =
 instance Ppr System where
   ppr system =
     vcat
-    [ ppr $ systemGrammar system
-    , vcat $ map ppr $ systemJudgmentSpecs system
-    , vcat $ map ppr $ systemRules system
+    [ text "grammar"
+    , nest 2 $ ppr $ systemGrammar system
+    , text ""
+    , text "judgments"
+    , nest 2 $ vcat $ map ppr $ systemJudgmentSpecs system
+    , text ""
+    , text "rules"
+    , nest 2 $ vcat $ map ppr $ systemRules system
     ]
 

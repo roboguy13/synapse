@@ -40,24 +40,24 @@ type TermName = Name Term
 newtype TermSpecAlt = TermSpecAlt Term
   deriving (Show)
 
-newtype TermSpec = TermSpec [TermSpecAlt]
+data TermSpec = TermSpec [String] [TermSpecAlt]
   deriving (Show)
 
-type Grammar = [([String], TermSpec)]
+type Grammar = [TermSpec]
 
 instance Ppr Grammar where
   ppr = vcat . map go
     where
-      go (names, TermSpec specAlts) =
-        sep (punctuate (text ",") (map text names))
+      go (TermSpec names specAlts) =
+        sep (punctuate (text ",") (map (text . ('?':)) names))
           <+> text "::="
-          $$ vcat (map ppr specAlts)
+          $$ nest 2 (vcat (map ppr specAlts))
 
 instance Ppr TermSpecAlt where
   ppr (TermSpecAlt alt) = ppr alt
 
 instance Ppr TermSpec where
-  ppr (TermSpec xs) =
+  ppr (TermSpec _ xs) =
     text "["
     <.>
     hsep (punctuate (text ",") (map ppr xs))
@@ -66,7 +66,7 @@ instance Ppr TermSpec where
 
 -- | Find the TermSpec corresponding to the given variable name
 lookupTermSpec :: Grammar -> String -> TermSpec
-lookupTermSpec ((names, spec) : rest) name =
+lookupTermSpec (spec@(TermSpec names _) : rest) name =
   if getVarName name `elem` names
   then spec
   else lookupTermSpec rest name
@@ -75,15 +75,15 @@ lookupTermSpec ((names, spec) : rest) name =
 getVarName :: String -> String
 getVarName = takeWhile (/= '_')
 
-mkTermSpec :: [Term] -> TermSpec
-mkTermSpec = TermSpec . coerce
+-- mkTermSpec :: [Term] -> TermSpec
+-- mkTermSpec = TermSpec . coerce
 
 termSpecAltSplit :: TermSpecAlt -> Maybe (String, [Term])
 termSpecAltSplit (TermSpecAlt (App (Symbol c) args)) = Just (c, args)
 termSpecAltSplit _ = Nothing
 
 termMatchesSpec :: Term -> TermSpec -> Maybe (TermSpecAlt, Substitution Term)
-termMatchesSpec t (TermSpec spec) = go spec
+termMatchesSpec t (TermSpec _ spec) = go spec
   where
     go []                                 = Nothing
     go (alt@(TermSpecAlt altSpec) : alts) = sequenceA (fmap (alt, ) runFreshMT (match t altSpec)) <|> go alts
@@ -111,7 +111,7 @@ instance Plated Term where
 instance Ppr Term where
   ppr (Symbol sym) = text sym
   ppr (IntLit i) = ppr i
-  ppr (Var x) = ppr x
+  ppr (Var x) = text "?" <.> ppr x
   ppr (App f args) =
     parens (hsep (map ppr (f : args)))
 
