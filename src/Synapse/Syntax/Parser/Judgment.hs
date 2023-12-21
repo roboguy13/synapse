@@ -14,7 +14,13 @@ import Data.Maybe
 import Data.Functor
 
 parseJudgment :: [JudgmentSpec] -> Parser Judgment
-parseJudgment = lexemeNewline .
+parseJudgment = lexeme . parseJudgmentBase
+
+parseJudgmentNewline :: [JudgmentSpec] -> Parser Judgment
+parseJudgmentNewline = lexemeNewline . parseJudgmentBase
+
+parseJudgmentBase :: [JudgmentSpec] -> Parser Judgment
+parseJudgmentBase =
   \case
     [] -> parserFailure Nothing "judgment"
     (spec:specs) ->

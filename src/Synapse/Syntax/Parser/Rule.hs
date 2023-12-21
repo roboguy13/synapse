@@ -13,20 +13,19 @@ import Data.Functor
 
 parseRule :: [JudgmentSpec] -> Parser Rule
 parseRule jSpecs = label "rule" . lexemeNewline $ do
-  premises <- many (parseJudgment jSpecs <* newline)
+  premises <- many (parseJudgmentNewline jSpecs)
   parseHLine
   name <- optional parseRuleName
-  newline
-  conclusion <- parseJudgment jSpecs
+  conclusion <- parseJudgmentNewline jSpecs
   pure $ Rule name premises conclusion
 
 parseHLine :: Parser ()
 parseHLine = label "horizontal line" . lexemeNewline $ do
-  xs <- some (char '-')
+  xs <- lexeme $ some (char '-')
   parserGuard (length xs > 3) Nothing "at least 3 -s"
 
 parseRuleName :: Parser String
-parseRuleName = label "rule name" . lexeme $ do
+parseRuleName = label "rule name" . lexemeNewline $ do
   symbol "["
   name <- parseIdentifier
   symbol "]"
