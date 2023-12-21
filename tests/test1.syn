@@ -1,15 +1,27 @@
 grammar
   ?e ::= (a b)
 
+  ?ctx ::= empty | (extend ?ctx ?t)
+
 judgments
   _ : _
   ?e : ?e
 
+  _ |- _ : _
+  ?ctx |- ?e : ?e
+
+  _ --> _
+  ?e --> ?e
+
+  _ -->* _
+  ?e -->* ?e
+
 rules
-  --------- [TAny]
+
+  --------- [T-Any]
   ?e : ?t
 
 
   ?a : ?a
-  --------- [TAny2]
-  ?e : ?t
+  --------- [T-Any2]
+  ?e |- ?e : ?t

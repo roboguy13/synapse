@@ -51,7 +51,13 @@ instance Ppr Grammar where
       go (TermSpec names specAlts) =
         sep (punctuate (text ",") (map (text . ('?':)) names))
           <+> text "::="
-          $$ nest 2 (vcat (map ppr specAlts))
+          $$ nest 2 (vcat (mapHead (text " " <+>) (mapTail (text "|" <+>) (map ppr specAlts))))
+
+      mapTail f [] = []
+      mapTail f (x:xs) = x : map f xs
+
+      mapHead f [] = []
+      mapHead f (x:xs) = f x : xs
 
 instance Ppr TermSpecAlt where
   ppr (TermSpecAlt alt) = ppr alt

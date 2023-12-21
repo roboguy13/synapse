@@ -14,7 +14,9 @@ data Rule =
 instance Ppr Rule where
   ppr rule =
     vcat $
-      map ppr (rulePremises rule)
+      case rulePremises rule of
+        [] -> [text ""]
+        premises -> map ppr premises
         ++
       [text "-------" <+> nameDoc]
         ++
