@@ -17,6 +17,7 @@ data System =
   { systemGrammar :: Grammar
   , systemJudgmentSpecs :: [JudgmentSpec]
   , systemRules :: [Rule]
+  , systemQueries :: [Query]
   -- , systemSmallStep :: Maybe JudgmentSpec
   -- , systemTyping :: Maybe JudgmentSpec
   }
@@ -32,6 +33,9 @@ instance Ppr System where
     , text ""
     , text "rules"
     , nest 2 $ vcat $ intersperse (text "") $ map ppr $ systemRules system
+    , text ""
+    , text "queries"
+    , nest 2 $ vcat $ map ppr $ systemQueries system
     ]
     where
       docMaybe :: Maybe a -> (a -> Doc) -> Doc

@@ -12,6 +12,9 @@ import Text.Megaparsec.Char
 
 import Data.Functor
 
+parseQuery :: [JudgmentSpec] -> Parser Query
+parseQuery specs = Query <$> parseSomeJudgment specs
+
 parseRule :: [JudgmentSpec] -> Parser Rule
 parseRule jSpecs = label "rule" . lexemeNewline $ do
   premises <- many (parseSomeJudgment jSpecs)

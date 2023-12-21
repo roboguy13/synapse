@@ -12,6 +12,9 @@ data Rule =
   }
   deriving (Show)
 
+newtype Query = Query SomeJudgment
+  deriving Show
+
 instance Ppr Rule where
   ppr rule =
     vcat $
@@ -27,4 +30,7 @@ instance Ppr Rule where
         case ruleName rule of
           Nothing -> mempty
           Just rName -> text "[" <.> text rName <.> text "]"
+
+instance Ppr Query where
+  ppr (Query q) = ppr q
 

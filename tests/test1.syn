@@ -1,7 +1,7 @@
 grammar
-  ?e ::= (a b)
+  ?e ::= unit | (?e ?e) | (lambda ?x ?e)
 
-  ?ctx ::= empty | (extend ?ctx ?t)
+  ?t ::= Unit | (-> ?t ?t)
 
 judgments
   _ : _
@@ -15,10 +15,15 @@ judgments
 
 rules
 
-  --------- [T-Any]
-  ?e : ?t
+  --------- [T-Unit]
+  ?gamma |- unit : Unit
 
 
-  ?a : ?a
-  --------- [T-Any2]
-  ?e |- ?e : ?t
+  ?gamma |- ?e_1 : (-> ?t_1 ?t_2)
+  ?gamma |- ?e_2 : ?t_1
+  --------- [T-App]
+  ?gamma |- (?e_1 ?e_2) : ?t_2
+
+  ?gamma, ?x : ?t_1 |- ?e : ?t_2
+  --------- [T-Lam]
+  ?gamma |- (lambda ?x ?e) : (-> ?t_1 ?t_2)

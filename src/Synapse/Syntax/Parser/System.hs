@@ -21,5 +21,10 @@ parseSystem = do
   jSpecs <- some (parseJudgmentSpec grammar)
   keywordNewline "rules"
   rules <- some (parseRule jSpecs)
-  pure $ System grammar jSpecs rules
+
+  queriesMaybe <- optional $ do
+    keywordNewline "queries"
+    some (parseQuery jSpecs)
+
+  pure $ System grammar jSpecs rules (concat queriesMaybe)
 
