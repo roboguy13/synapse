@@ -30,11 +30,13 @@ executable synapse
       Synapse.Syntax.Judgment
       Synapse.Syntax.Rule
       Synapse.Syntax.System
+      Synapse.Syntax.Context
       Synapse.Syntax.Parser.Utils
       Synapse.Syntax.Parser.Term
       Synapse.Syntax.Parser.Judgment
       Synapse.Syntax.Parser.Rule
       Synapse.Syntax.Parser.System
+      Synapse.Syntax.Parser.Context
       Synapse.Logic.Unify
       Synapse.Logic.Substitution
       Synapse.Ppr

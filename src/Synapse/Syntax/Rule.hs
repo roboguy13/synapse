@@ -1,13 +1,14 @@
 module Synapse.Syntax.Rule where
 
 import Synapse.Syntax.Judgment
+import Synapse.Syntax.Context
 import Synapse.Ppr
 
 data Rule =
   Rule
   { ruleName :: Maybe String
-  , rulePremises :: [Judgment]
-  , ruleConclusion :: Judgment
+  , rulePremises :: [SomeJudgment]
+  , ruleConclusion :: SomeJudgment
   }
   deriving (Show)
 

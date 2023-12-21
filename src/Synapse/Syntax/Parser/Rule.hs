@@ -3,6 +3,7 @@ module Synapse.Syntax.Parser.Rule
 
 import Synapse.Syntax.Rule
 import Synapse.Syntax.Judgment
+import Synapse.Syntax.Parser.Context
 import Synapse.Syntax.Parser.Utils
 import Synapse.Syntax.Parser.Judgment
 
@@ -13,10 +14,10 @@ import Data.Functor
 
 parseRule :: [JudgmentSpec] -> Parser Rule
 parseRule jSpecs = label "rule" . lexemeNewline $ do
-  premises <- many (parseJudgmentNewline jSpecs)
+  premises <- many (parseSomeJudgment jSpecs)
   parseHLine
   name <- optional parseRuleName
-  conclusion <- parseJudgmentNewline jSpecs
+  conclusion <- parseSomeJudgment jSpecs
   pure $ Rule name premises conclusion
 
 parseHLine :: Parser ()
