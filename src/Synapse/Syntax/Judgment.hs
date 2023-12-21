@@ -22,6 +22,9 @@ import GHC.Generics
 import Control.Monad
 import Data.Void
 import Data.Fix
+import Data.List
+import Data.Maybe
+import Data.Ord
 
 data SpecPart' a
   = ParamSpot a
@@ -43,6 +46,19 @@ data Judgment =
   , judgmentSpots :: [SubstTerm]
   }
   deriving (Show, Generic)
+
+isOperatorPart :: SpecPart' a -> Maybe String
+isOperatorPart (OperatorPart s) = Just s
+isOperatorPart _ = Nothing
+
+getOperatorParts :: [SpecPart' a] -> [String]
+getOperatorParts = mapMaybe isOperatorPart
+
+sortSpecs :: [JudgmentSpec] -> [JudgmentSpec]
+sortSpecs = sortBy go
+  where
+    go x y =
+      compare (Down (getOperatorParts (judgmentSpecParts x))) (Down (getOperatorParts (judgmentSpecParts y)))
 
 instance Alpha a => Alpha (SpecPart' a)
 instance Alpha JudgmentSpec

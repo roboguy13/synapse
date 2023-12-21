@@ -18,7 +18,7 @@ parseSystem = do
   keywordNewline "grammar"
   grammar <- parseGrammar
   keywordNewline "judgments"
-  jSpecs <- some (parseJudgmentSpec grammar)
+  jSpecs <- sortSpecs <$> some (parseJudgmentSpec grammar)
   keywordNewline "rules"
   rules <- some (parseRule jSpecs)
 
