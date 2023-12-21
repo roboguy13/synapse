@@ -29,7 +29,7 @@ rules
   ?gamma |- (lambda ?x ?e) : (-> ?t_1 ?t_2)
 
   --------- [E-App]
-  ((lambda ?x ?e_1) ?e_2) --> ?e_1[x := ?e_2]
+  ((lambda ?x ?e_1) ?e_2) --> ?e_1[?x := ?e_2]
 
   --------- [E-Done]
   ?e -->* ?e
