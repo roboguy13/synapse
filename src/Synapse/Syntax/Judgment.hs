@@ -1,16 +1,25 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleContexts #-}
+
 module Synapse.Syntax.Judgment
   where
 
 import Synapse.Syntax.Term
 import Synapse.Logic.Substitution
+import Synapse.Logic.Unify
 import Synapse.Ppr
+
+import Unbound.Generics.LocallyNameless
+
+import GHC.Generics
 
 import Control.Monad
 
 data SpecPart' a
   = ParamSpot a
   | OperatorPart String
-  deriving (Show)
+  deriving (Show, Generic)
 
 type SpecPart = SpecPart' ()
 
@@ -19,14 +28,17 @@ data JudgmentSpec =
   { judgmentSpecParts :: [SpecPart]
   , judgmentSpecArity :: [TermSpec]
   }
-  deriving (Show)
+  deriving (Show, Generic)
 
 data Judgment =
   Judgment
   { judgmentSpec :: JudgmentSpec
   , judgmentSpots :: [Term]
   }
-  deriving (Show)
+  deriving (Show, Generic)
+
+instance Alpha a => Alpha (SpecPart' a)
+instance Alpha JudgmentSpec
 
 isJudgmentWellFormed :: Judgment -> Maybe [Substitution Term]
 isJudgmentWellFormed jd =
@@ -51,4 +63,19 @@ instance Ppr Judgment where
       go [] [] = mempty
       go (ParamSpot _ : rest) (x:xs) = ppr x <+> go rest xs
       go (OperatorPart s : rest) xs = text s <+> go rest xs
+
+instance Alpha Judgment
+instance Subst Judgment Judgment
+instance Subst Judgment JudgmentSpec
+instance Subst Judgment TermSpec
+instance Subst Judgment TermSpecAlt
+instance Subst Judgment Term
+instance Subst Judgment BinderSort
+instance Subst Judgment a => Subst Judgment (SpecPart' a)
+
+matchJudgment :: Judgment -> Judgment -> Maybe (Substitution Term)
+matchJudgment matcher j
+  | not (judgmentSpec matcher `aeq` judgmentSpec j) = Nothing
+  | otherwise =
+      runFreshMT $ matchList (zip (judgmentSpots matcher) (judgmentSpots j))
 

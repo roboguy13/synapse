@@ -38,12 +38,15 @@ data BinderSpec =
 type TermName = Name Term
 
 newtype TermSpecAlt = TermSpecAlt Term
-  deriving (Show)
+  deriving (Show, Generic)
 
 data TermSpec = TermSpec [String] [TermSpecAlt]
-  deriving (Show)
+  deriving (Show, Generic)
 
 type Grammar = [TermSpec]
+
+instance Alpha TermSpecAlt
+instance Alpha TermSpec
 
 instance Ppr Grammar where
   ppr = vcat . map go

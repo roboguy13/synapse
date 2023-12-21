@@ -9,6 +9,7 @@ module Synapse.Logic.Unify
   (Match (..)
   ,match
   ,unify
+  ,matchList
   ,matchSubst
   ,unifySubst
 
@@ -52,6 +53,14 @@ match = matchSubst mempty
 
 unify :: Match a => a -> a -> FreshMT Maybe (Substitution a)
 unify = unifySubst mempty
+
+matchList :: Match a => [(a, a)] -> FreshMT Maybe (Substitution a)
+matchList = go mempty
+  where
+    go subst [] = pure subst
+    go subst ((x, y) : rest) = do
+      subst' <- matchSubst subst x y
+      go subst' rest
 
 matchSubst :: Match a => Substitution a -> a -> a -> FreshMT Maybe (Substitution a)
 matchSubst = generalUnify matchSolver

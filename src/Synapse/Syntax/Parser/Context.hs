@@ -7,6 +7,8 @@ import Synapse.Syntax.Parser.Utils
 import Synapse.Syntax.Parser.Term (parseVarName)
 import Synapse.Syntax.Parser.Judgment
 
+import Unbound.Generics.LocallyNameless
+
 import Data.Functor
 
 import Text.Megaparsec
@@ -40,7 +42,7 @@ parseEmpty :: Parser Context
 parseEmpty = lexeme $ keyword "<>" $> Empty
 
 parseCtxVar :: Parser Context
-parseCtxVar = lexeme $ CtxVar <$> parseVarName
+parseCtxVar = lexeme $ CtxVar . string2Name <$> parseVarName
 
 parseExtend :: [JudgmentSpec] -> Parser Context
 parseExtend specs = lexeme $ do

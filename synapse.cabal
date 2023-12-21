@@ -39,6 +39,8 @@ executable synapse
       Synapse.Syntax.Parser.Context
       Synapse.Logic.Unify
       Synapse.Logic.Substitution
+      Synapse.Logic.Derivation
+      Synapse.Logic.Search
       Synapse.Ppr
 
     -- LANGUAGE extensions used by modules in this package.
