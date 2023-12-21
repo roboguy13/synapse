@@ -31,8 +31,8 @@ parseFromJudgmentSpec spec = label "judgment" . lexeme $ do
   ts <- catMaybes <$> traverse parseFromPart (judgmentSpecParts spec)
   pure $ Judgment spec ts
 
-parseFromPart :: SpecPart -> Parser (Maybe Term)
-parseFromPart (ParamSpot _) = lexeme $ Just <$> parseTerm
+parseFromPart :: SpecPart -> Parser (Maybe SubstTerm)
+parseFromPart (ParamSpot _) = lexeme $ Just <$> parseSubstTerm
 parseFromPart (OperatorPart x) = lexeme $ keyword x $> Nothing
 
 -- | mix _ fix _ operator

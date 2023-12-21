@@ -1,8 +1,10 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Synapse.Logic.Substitution
   (Substitution
   ,isEmpty
+  ,oneSubst
   ,extend
   ,lookup
   ,applySubstitution
@@ -10,11 +12,24 @@ module Synapse.Logic.Substitution
   where
 
 import Prelude hiding (lookup)
+
+import Synapse.Ppr hiding (isEmpty)
+
 import Unbound.Generics.LocallyNameless
 import qualified Data.List as List
 
+import GHC.Generics
+import Data.Typeable
+
 newtype Substitution a = Substitution [(Name a, a)]
-  deriving (Semigroup, Monoid)
+  deriving (Semigroup, Monoid, Show, Generic, Typeable)
+
+instance (Show a, Typeable a, Alpha a) => Alpha (Substitution a)
+
+instance Ppr a => Ppr (Substitution a) where
+  ppr (Substitution xs0) = text "[" <.> hsep (punctuate (text ",") (map go xs0)) <.> text "]"
+    where
+      go (x, t) = ppr x <+> text ":=" <+> ppr t
 
 isEmpty :: Substitution a -> Bool
 isEmpty (Substitution []) = True

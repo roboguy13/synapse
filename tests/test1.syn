@@ -22,7 +22,7 @@ rules
   ?gamma |- ?e_1 : (-> ?t_1 ?t_2)
   ?gamma |- ?e_2 : ?t_1
   --------- [T-App]
-  ?gamma |- (?e_1 ?e_2) : ?t_2
+  ?gamma |- (?e_1 ?e_2)[?x := ?e] : ?t_2
 
   ?gamma, ?x : ?t_1 |- ?e : ?t_2
   --------- [T-Lam]

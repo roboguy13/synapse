@@ -3,11 +3,31 @@ module Synapse.Syntax.Parser.Term
 
 import Synapse.Syntax.Term
 import Synapse.Syntax.Parser.Utils
+import Synapse.Logic.Substitution
 
 import Unbound.Generics.LocallyNameless
 
 import Text.Megaparsec
 import Text.Megaparsec.Char
+
+parseSubstTerm :: Parser SubstTerm
+parseSubstTerm =
+  try parseSubst <|>
+  fmap retagTerm parseTerm
+
+parseSubst :: Parser SubstTerm
+parseSubst = label "explicit substitution" $ lexeme $ do
+  t <- parseTerm
+  symbol "["
+  xs <- parseOneSubst `sepBy1` symbol ","
+  symbol "]"
+  pure $ TSubst (retagTerm t) (mconcat xs)
+  where
+    parseOneSubst = lexeme $ do
+      x <- lexeme parseVarName
+      symbol ":="
+      t <- parseTerm
+      pure $ oneSubst (string2Name x) t
 
 parseTerm :: Parser Term
 parseTerm = label "term" $
