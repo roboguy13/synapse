@@ -10,6 +10,8 @@ import Synapse.Syntax.Judgment
 import Synapse.Syntax.Rule
 import Synapse.Ppr
 
+import Data.List
+
 data System =
   System
   { systemGrammar :: Grammar
@@ -27,6 +29,6 @@ instance Ppr System where
     , nest 2 $ vcat $ map ppr $ systemJudgmentSpecs system
     , text ""
     , text "rules"
-    , nest 2 $ vcat $ map ppr $ systemRules system
+    , nest 2 $ vcat $ intersperse (text "") $ map ppr $ systemRules system
     ]
 

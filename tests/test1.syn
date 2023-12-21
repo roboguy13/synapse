@@ -6,5 +6,10 @@ judgments
   ?e : ?e
 
 rules
----------[TAny]
-?e : ?t
+  --------- [TAny]
+  ?e : ?t
+
+
+  ?a : ?a
+  --------- [TAny2]
+  ?e : ?t
