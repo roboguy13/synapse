@@ -29,7 +29,7 @@ instance (Show a, Typeable a, Alpha a) => Alpha (Substitution a)
 instance Ppr a => Ppr (Substitution a) where
   ppr (Substitution xs0) = text "[" <.> hsep (punctuate (text ",") (map go xs0)) <.> text "]"
     where
-      go (x, t) = ppr x <+> text ":=" <+> ppr t
+      go (x, t) = text "?" <.> ppr x <+> text ":=" <+> ppr t
 
 isEmpty :: Substitution a -> Bool
 isEmpty (Substitution []) = True
