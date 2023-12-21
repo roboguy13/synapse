@@ -80,12 +80,15 @@ parseJudgmentIdentifier = parseIdentifierWith ""
 parseIdentifierWith :: String -> Parser String
 parseIdentifierWith extras = label "identifier" $ do
     ident <- liftA2 (:) parseFirst (many parseTailChar)
-    guard (not (isInt ident))
+    guard (not (isInt ident) && (ident `notElem` keywords))
     pure ident
   where
     parseFirst, parseTailChar :: Parser Char
     parseFirst = letterChar <|> oneOf ("!@#$%^&*+-.:~=<>/|" ++ extras)
     parseTailChar = parseFirst <|> digitChar
+
+keywords :: [String]
+keywords = ["grammar", "rules", "judgments"]
 
 isInt :: String -> Bool
 isInt ('-':xs) = isNatural xs

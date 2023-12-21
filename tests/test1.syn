@@ -1,8 +1,11 @@
-?e ::= (a b)
-?t ::= any
+grammar
+  ?e ::= (a b)
 
-_ : _
+judgments
+  _ : _
+  ?e : ?e
+
+rules
+
+--------- [TAny]
 ?e : ?t
-
---------- [T-Any]
-?e : any

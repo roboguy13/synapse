@@ -9,6 +9,7 @@ data Rule =
   , rulePremises :: [Judgment]
   , ruleConclusion :: Judgment
   }
+  deriving (Show)
 
 instance Ppr Rule where
   ppr rule =

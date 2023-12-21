@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 module Synapse.Syntax.Parser.Judgment
   where
 
@@ -13,9 +14,11 @@ import Data.Maybe
 import Data.Functor
 
 parseJudgment :: [JudgmentSpec] -> Parser Judgment
-parseJudgment [] = parserFailure Nothing "judgment"
-parseJudgment (spec:specs) =
-  try (parseFromJudgmentSpec spec) <|> parseJudgment specs
+parseJudgment = lexemeNewline .
+  \case
+    [] -> parserFailure Nothing "judgment"
+    (spec:specs) ->
+      try (parseFromJudgmentSpec spec) <|> parseJudgment specs
 
 parseFromJudgmentSpec :: JudgmentSpec -> Parser Judgment
 parseFromJudgmentSpec spec = label "judgment" . lexeme $ do

@@ -12,7 +12,7 @@ import Text.Megaparsec.Char
 import Data.Functor
 
 parseRule :: [JudgmentSpec] -> Parser Rule
-parseRule jSpecs = label "rule" . lexeme $ do
+parseRule jSpecs = label "rule" . lexemeNewline $ do
   premises <- many (parseJudgment jSpecs <* newline)
   parseHLine
   name <- optional parseRuleName
@@ -21,7 +21,7 @@ parseRule jSpecs = label "rule" . lexeme $ do
   pure $ Rule name premises conclusion
 
 parseHLine :: Parser ()
-parseHLine = label "horizontal line" . lexeme $ do
+parseHLine = label "horizontal line" . lexemeNewline $ do
   xs <- some (char '-')
   parserGuard (length xs > 3) Nothing "at least 3 -s"
 
