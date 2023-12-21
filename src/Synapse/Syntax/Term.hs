@@ -38,8 +38,10 @@ data BinderSpec =
 type TermName = Name Term
 
 newtype TermSpecAlt = TermSpecAlt Term
+  deriving (Show)
 
 newtype TermSpec = TermSpec [TermSpecAlt]
+  deriving (Show)
 
 type Grammar = [([String], TermSpec)]
 
@@ -53,6 +55,14 @@ instance Ppr Grammar where
 
 instance Ppr TermSpecAlt where
   ppr (TermSpecAlt alt) = ppr alt
+
+instance Ppr TermSpec where
+  ppr (TermSpec xs) =
+    text "["
+    <.>
+    hsep (punctuate (text ",") (map ppr xs))
+    <.>
+    text "]"
 
 -- | Find the TermSpec corresponding to the given variable name
 lookupTermSpec :: Grammar -> String -> TermSpec

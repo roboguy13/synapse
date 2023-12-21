@@ -11,6 +11,7 @@ import Synapse.Syntax.Parser.Rule
 import Synapse.Syntax.Parser.Utils
 
 import Text.Megaparsec
+import Text.Megaparsec.Char
 
 parseSystem :: Parser System
 parseSystem = do

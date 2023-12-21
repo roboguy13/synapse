@@ -10,18 +10,21 @@ import Control.Monad
 data SpecPart
   = ParamSpot
   | OperatorPart String
+  deriving (Show)
 
 data JudgmentSpec =
   JudgmentSpec
   { judgmentSpecParts :: [SpecPart]
   , judgmentSpecArity :: [TermSpec]
   }
+  deriving (Show)
 
 data Judgment =
   Judgment
   { judgmentSpec :: JudgmentSpec
   , judgmentSpots :: [Term]
   }
+  deriving (Show)
 
 isJudgmentWellFormed :: Judgment -> Maybe [Substitution Term]
 isJudgmentWellFormed jd =

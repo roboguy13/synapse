@@ -33,13 +33,13 @@ parse'' sourceName p str =
 sc :: Parser ()
 sc = L.space
   (takeWhile1P (Just "space") (`elem` " \t") $> ()) --space1
-  mempty --(L.skipLineComment "--")
+  (L.skipLineComment "//")
   (L.skipBlockComment "{-" "-}")
 
 scNewline :: Parser ()
 scNewline = L.space
   space1
-  mempty --(L.skipLineComment "--")
+  (L.skipLineComment "//")
   (L.skipBlockComment "{-" "-}")
 
 lexemeNewline :: Parser a -> Parser a
@@ -71,15 +71,20 @@ parseInt =
         Nothing -> pure []
         Just xs -> pure xs
 
-
 parseIdentifier :: Parser String
-parseIdentifier = label "identifier" $ do
+parseIdentifier = parseIdentifierWith "_"
+
+parseJudgmentIdentifier :: Parser String
+parseJudgmentIdentifier = parseIdentifierWith ""
+
+parseIdentifierWith :: String -> Parser String
+parseIdentifierWith extras = label "identifier" $ do
     ident <- liftA2 (:) parseFirst (many parseTailChar)
     guard (not (isInt ident))
     pure ident
   where
     parseFirst, parseTailChar :: Parser Char
-    parseFirst = letterChar <|> oneOf "!@#$%^&*+-.:~=<>/|_"
+    parseFirst = letterChar <|> oneOf ("!@#$%^&*+-.:~=<>/|" ++ extras)
     parseTailChar = parseFirst <|> digitChar
 
 isInt :: String -> Bool
