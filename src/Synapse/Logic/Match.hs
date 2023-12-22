@@ -6,6 +6,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Synapse.Logic.Match
   where
@@ -29,11 +31,25 @@ import Control.Lens
 import Unbound.Generics.LocallyNameless
 
 data NodePair a where
-  InjPair :: forall a b. Match b => Injection b a -> b -> b -> NodePair a
-  SubstMapPair :: forall a b. In b (ContainedTypes a) => b -> b -> NodePair a
+  NodePair :: forall a b. Match b => Path a b -> b -> b -> NodePair a
+  -- InjPair :: forall a b. Match b => Injection b a -> b -> b -> NodePair a
+  -- SubstMapPair :: forall a b. In b (ContainedTypes a) => b -> b -> NodePair a
+
+-- | How to get to the substitution we need. Constructors for the different @Substitution@s to use.
+data Path a b where
+  PathInj :: forall a b. Injection b a -> Path a b
+  PathSubstMap :: forall a b. Elem b (ContainedTypes a) -> Path a b
+
+idPath :: Path a a
+idPath = PathInj id
+
+instance Category Path where
+  id = PathInj id
+  PathInj i . PathInj j = PathInj (j . i)
+  PathSubstMap @b @c p . PathSubstMap @a @_ q = PathSubstMap (elemCompose @a @b @c p q)
 
 class (Eq a, Plated a, Subst a a, Typeable a, Alpha a) => Match a where
-  type ContainedTypes a :: [*]
+  -- type ContainedTypes a :: [*]
 
   isConst :: a -> Bool
   mkVar_maybe :: Maybe (Name a -> a)
@@ -44,7 +60,7 @@ class (Eq a, Plated a, Subst a a, Typeable a, Alpha a) => Match a where
   default matchConstructor :: (Generic a, GConstrEq (Rep a), Plated a) => a -> a -> Maybe [NodePair a]
   matchConstructor x y =
     if constrEq x y
-    then Just $ zipWith (InjPair id) (children x) (children y)
+    then Just $ zipWith (NodePair (PathInj id)) (children x) (children y)
     else Nothing
 
 type SubstMap' a = SubstMap (ContainedTypes a)
@@ -63,21 +79,19 @@ instance SubstMapSing (ContainedTypes a) => Semigroup (MatchSubst a) where
 instance SubstMapSing (ContainedTypes a) => Monoid (MatchSubst a) where
   mempty = MatchSubst mempty mempty
 
--- | How to get to the substitution we need. Constructors for the different @Substitution@s to use.
-data Path a b where
-  PathInj :: Injection b a -> Path a b
-  PathSubstMap :: Dict (In b (ContainedTypes a)) -> Path a b
-
 pathToLens :: Path a b -> Lens' (MatchSubst a) (Substitution b)
 pathToLens (PathInj inj) =
   lens
     (substMap (\x -> case project inj x of Just r -> r) . _matchSubstInj) -- TODO: Does this make sense?
     (\matchSubst sbst -> matchSubst & matchSubstInj .~ substMap (inject inj) sbst)
 
-pathToLens (PathSubstMap Dict) =
+pathToLens (PathSubstMap p) =
   lens
-    (getSubst . _matchSubstMap)
-    (\matchSubst sbst -> matchSubst & matchSubstMap .~ putSubst sbst (_matchSubstMap matchSubst))
+    (view (matchSubstMap . elemToLens p))
+    (\matchSubst sbst -> matchSubst & (matchSubstMap . elemToLens p) .~ sbst)
+    -- (\matchSubst sbst -> matchSubst & (matchSubstMap._) .~ (_matchSubstMap matchSubst))
+
+-- lensToPath
 
 pathLookup :: Path a b -> MatchSubst a -> Name b -> Maybe b
 pathLookup path mSbst x = Substitution.lookup x (mSbst ^. pathToLens path)

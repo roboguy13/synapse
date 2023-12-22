@@ -4,6 +4,12 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Synapse.Logic.SubstMap
   where
@@ -12,10 +18,37 @@ import Synapse.Logic.Substitution as Substitution
 
 import Unbound.Generics.LocallyNameless
 
+import Control.Lens
+
+type family ContainedTypes a :: [*]
+
 data SubstMap ts where
   Nil :: SubstMap '[]
-  Cons :: Substitution b -> SubstMap ts -> SubstMap (b ': ts)
+  Cons ::
+     SubstMap (ContainedTypes b) ->    -- There's a sort of transitive containment
+     Substitution b -> SubstMap ts -> SubstMap (b ': ts)
 
+data Elem a ts where
+  Here :: Elem a (a ': ts)
+  There :: Elem a ts -> Elem a (b ': ts)
+  Descend :: Elem a (ContainedTypes b) -> Elem a (b ': ts)
+
+elemToLens :: Elem a ts -> Lens' (SubstMap ts) (Substitution a)
+elemToLens Here = lens (\(Cons _ x _) -> x) (\(Cons t _ xs) x -> Cons t x xs)
+elemToLens (There p) =
+  lens (\(Cons _ _ xs) -> xs ^. elemToLens p) (\(Cons t x xs) y -> Cons t x (xs & elemToLens p .~ y))
+elemToLens (Descend p) =
+  lens (\(Cons t _ _) -> t ^. elemToLens p) (\(Cons t x xs) y -> Cons (t & elemToLens p .~ y) x xs)
+
+contained :: Elem a ts -> Elem x (ContainedTypes a) -> Elem x ts
+contained Here q = Descend q
+contained (There p) q = There (contained p q)
+
+elemCompose :: forall a b c.
+  Elem c (ContainedTypes b) ->
+  Elem b (ContainedTypes a) ->
+  Elem c (ContainedTypes a)
+elemCompose p q = contained q p
 
 class SubstMapSing ts where
   substMapEmpty :: SubstMap ts
@@ -23,8 +56,8 @@ class SubstMapSing ts where
 instance SubstMapSing '[] where
   substMapEmpty = Nil
 
-instance SubstMapSing ts => SubstMapSing (a ': ts) where
-  substMapEmpty = Cons mempty substMapEmpty
+instance (SubstMapSing (ContainedTypes a), SubstMapSing ts) => SubstMapSing (a ': ts) where
+  substMapEmpty = Cons mempty mempty substMapEmpty
 
 type In a ts = (SubstMapLookup a ts, SubstMapExtend a ts, SubstMapSing ts, GetSubst a ts)
 
@@ -33,38 +66,37 @@ class GetSubst a ts where
   putSubst :: Substitution a -> SubstMap ts -> SubstMap ts
 
 instance GetSubst a (a ': ts) where
-  getSubst (Cons sbst _) = sbst
-  putSubst sbst (Cons _ rest) = Cons sbst rest
+  getSubst (Cons _ sbst _) = sbst
+  putSubst sbst (Cons m _ rest) = Cons m sbst rest
 
 instance GetSubst a ts => GetSubst a (b ': ts) where
-  getSubst (Cons _ rest) = getSubst rest
-  putSubst sbst (Cons sbst' rest) = Cons sbst' (putSubst sbst rest)
+  getSubst (Cons _ _ rest) = getSubst rest
+  putSubst sbst (Cons m sbst' rest) = Cons m sbst' (putSubst sbst rest)
 
 
 class SubstMapLookup a ts where
   substMapLookup :: Name a -> SubstMap ts -> Maybe a
 
 instance SubstMapLookup a (a ': ts) where
-  substMapLookup x (Cons sbst _) = Substitution.lookup x sbst
+  substMapLookup x (Cons _ sbst _) = Substitution.lookup x sbst
 
 instance SubstMapLookup a ts => SubstMapLookup a (b ': ts) where
-  substMapLookup x (Cons _ rest) = substMapLookup x rest
+  substMapLookup x (Cons _ _ rest) = substMapLookup x rest
 
 
 class SubstMapExtend a ts where
   substMapExtend :: Name a -> a -> SubstMap ts -> SubstMap ts
 
 instance SubstMapExtend a (a ': ts) where
-  substMapExtend x t (Cons sbst rest) = Cons (extend sbst x t) rest
+  substMapExtend x t (Cons m sbst rest) = Cons m (extend sbst x t) rest
 
 instance SubstMapExtend a ts => SubstMapExtend a (b ': ts) where
-  substMapExtend x t (Cons sbst rest) = Cons sbst (substMapExtend x t rest)
+  substMapExtend x t (Cons m sbst rest) = Cons m sbst (substMapExtend x t rest)
 
 instance Semigroup (SubstMap ts) where
   Nil <> Nil = Nil
-  Cons sbst rest <> Cons sbst' rest' = Cons (sbst <> sbst') (rest <> rest')
+  Cons m1 sbst rest <> Cons m2 sbst' rest' = Cons (m1 <> m2) (sbst <> sbst') (rest <> rest')
 
 instance SubstMapSing ts => Monoid (SubstMap ts) where
   mempty = substMapEmpty
-
 

@@ -31,7 +31,6 @@ import Control.Monad
 
 import Synapse.Logic.Substitution as Substitution
 import Synapse.Logic.SubstMap
-import Synapse.Logic.Injection
 import Synapse.Logic.ConstrEq
 import Synapse.Logic.Match
 
@@ -55,13 +54,13 @@ import Data.Proxy
 doOccursCheck :: Bool
 doOccursCheck = True
 
-match :: Match a => a -> a -> FreshMT Maybe (MatchSubst a)
+match :: (SubstMapSing (ContainedTypes a), Match a) => a -> a -> FreshMT Maybe (MatchSubst a)
 match = matchSubst mempty 
 
-unify :: Match a => a -> a -> FreshMT Maybe (MatchSubst a)
+unify :: (SubstMapSing (ContainedTypes a), Match a) => a -> a -> FreshMT Maybe (MatchSubst a)
 unify = unifySubst mempty
 
-matchList :: Match a => [(a, a)] -> FreshMT Maybe (MatchSubst a)
+matchList :: (SubstMapSing (ContainedTypes a), Match a) => [(a, a)] -> FreshMT Maybe (MatchSubst a)
 matchList = go mempty
   where
     go subst [] = pure subst
@@ -70,17 +69,17 @@ matchList = go mempty
       go subst' rest
 
 matchSubst :: Match a => MatchSubst a -> a -> a -> FreshMT Maybe (MatchSubst a)
-matchSubst = solve matchSolver id
+matchSubst = solve matchSolver idPath
 
 unifySubst :: Match a => MatchSubst a -> a -> a -> FreshMT Maybe (MatchSubst a)
-unifySubst = solve unifySolver id
+unifySubst = solve unifySolver idPath
 
 type UnifierM = FreshMT Maybe
 
 data Solver a =
   Solver
-  { solve :: forall b. Match b => Injection b a -> MatchSubst a -> b -> b -> UnifierM (MatchSubst a)
-  , solveVarRight :: forall b. Match b => Injection b a -> MatchSubst a -> Name b -> b -> UnifierM (MatchSubst a)
+  { solve :: forall b. Match b => Path a b -> MatchSubst a -> b -> b -> UnifierM (MatchSubst a)
+  , solveVarRight :: forall b. Match b => Path a b -> MatchSubst a -> Name b -> b -> UnifierM (MatchSubst a)
   }
 
 unifySolver :: Match a => Solver a
@@ -91,44 +90,44 @@ matchSolver = Solver (solveSubstInj matchSolver) (\_ _ _ _ -> lift Nothing)
 
 solveSubstInj :: (Match a, Match b) =>
   Solver a ->
-  Injection b a -> MatchSubst a -> b -> b -> UnifierM (MatchSubst a)
-solveSubstInj solver inj sbst x y
+  Path a b -> MatchSubst a -> b -> b -> UnifierM (MatchSubst a)
+solveSubstInj solver path sbst x y
   | isConst x, isConst y = do
       guard (x == y)
       pure sbst
 
-  | Just xV <- isVar x = solveVar solver inj sbst xV y
-  | Just yV <- isVar y = solveVarRight solver inj sbst yV x
+  | Just xV <- isVar x = solveVar solver path sbst xV y
+  | Just yV <- isVar y = solveVarRight solver path sbst yV x
 
   | otherwise = do
       ps <- lift (matchConstructor x y)
-      solveList solver inj sbst ps
+      solveList solver path sbst ps
 
 solveList :: forall a b. (Match a, Match b) =>
   Solver a ->
-  Injection b a -> MatchSubst a -> [NodePair b] -> UnifierM (MatchSubst a)
-solveList solver inj sbst [] = pure sbst
-solveList solver inj sbst (InjPair injC x y : rest) = do
-  sbst' <- solveSubstInj solver (inj . injC) sbst x y
-  solveList solver inj sbst' rest
+  Path a b -> MatchSubst a -> [NodePair b] -> UnifierM (MatchSubst a)
+solveList solver path sbst [] = pure sbst
+solveList solver path sbst (NodePair pathC x y : rest) = do
+  sbst' <- solveSubstInj solver (pathC . path) sbst x y
+  solveList solver path sbst' rest
 
-solveVar :: (Match a, Match b) => Solver a -> Injection b a -> MatchSubst a -> Name b -> b -> UnifierM (MatchSubst a)
-solveVar solver inj sbst v y = do
+solveVar :: (Match a, Match b) => Solver a -> Path a b -> MatchSubst a -> Name b -> b -> UnifierM (MatchSubst a)
+solveVar solver path sbst v y = do
   guard (not (occurs v y))
 
   case isVar y of
     Just yV ->
-      case lookupInj inj sbst yV of
+      case pathLookup path sbst yV of
         Just yInst -> do
           guard (not (occurs v yInst))
           mkVar <- lift mkVar_maybe
-          solveSubstInj solver inj sbst (mkVar v) yInst
+          solveSubstInj solver path sbst (mkVar v) yInst
 
         Nothing ->
-          pure $ extendInj inj sbst v y
+          pure $ pathExtend path sbst v y
 
     Nothing ->
-      pure $ extendInj inj sbst v y
+      pure $ pathExtend path sbst v y
 
 occurs :: Match a => Name a -> a -> Bool
 occurs =
