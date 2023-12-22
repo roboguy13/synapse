@@ -3,6 +3,8 @@
 --
 
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Synapse.Orphans
   where
@@ -22,6 +24,11 @@ instance (Show1 f, Alpha (f (Fix f))) => Alpha (Fix f)
 instance (Show1 f, Show1 g, Show a, Alpha (f (g a))) => Alpha (Compose f g a)
 instance (Show1 f, Show1 g, Show a, Alpha (f a), Alpha (g a)) => Alpha (Product f g a)
 instance (Show a, Alpha a) => Alpha (Const a b)
+
+instance Subst a (f (Fix f)) => Subst a (Fix f)
+instance Subst a (f (g b)) => Subst a (Compose f g b)
+instance (Subst a (f b), Subst a (g b)) => Subst a (Product f g b)
+instance (Subst a b) => Subst a (Const b c)
 
 instance Show a => Show1 (Bind a) where
   liftShowsPrec sp sl = showsUnaryWith (liftShowsPrec sp sl) "Bind"

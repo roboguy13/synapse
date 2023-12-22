@@ -26,10 +26,12 @@ import Data.List
 import Data.Maybe
 import Data.Ord
 
+import Control.Lens.Plated
+
 data SpecPart' a
   = ParamSpot a
   | OperatorPart String
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 type SpecPart = SpecPart' ()
 
@@ -38,14 +40,14 @@ data JudgmentSpec =
   { judgmentSpecParts :: [SpecPart]
   , judgmentSpecArity :: [TermSpec]
   }
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 data Judgment =
   Judgment
   { judgmentSpec :: JudgmentSpec
   , judgmentSpots :: [SubstTerm]
   }
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 isOperatorPart :: SpecPart' a -> Maybe String
 isOperatorPart (OperatorPart s) = Just s
@@ -53,6 +55,13 @@ isOperatorPart _ = Nothing
 
 getOperatorParts :: [SpecPart' a] -> [String]
 getOperatorParts = mapMaybe isOperatorPart
+
+isParamSpot :: SpecPart' a -> Maybe a
+isParamSpot (ParamSpot x) = Just x
+isParamSpot _ = Nothing
+
+getParamSpots :: [SpecPart' a] -> [a]
+getParamSpots = mapMaybe isParamSpot
 
 sortSpecs :: [JudgmentSpec] -> [JudgmentSpec]
 sortSpecs = sortBy go
@@ -87,7 +96,7 @@ instance Ppr Judgment where
       go (ParamSpot _ : rest) (x:xs) = ppr x <+> go rest xs
       go (OperatorPart s : rest) xs = text s <+> go rest xs
 
-SUBST_INSTANCES(Judgment)
+-- SUBST_INSTANCES(Judgment)
 
 instance Alpha Judgment
 instance Subst Judgment Judgment
@@ -101,9 +110,29 @@ instance Subst Judgment BinderSort
 instance Subst Judgment a => Subst Judgment (SpecPart' a)
 instance Subst Judgment Void
 
-matchJudgment :: Judgment -> Judgment -> Maybe (Substitution Term)
-matchJudgment matcher j
-  | not (judgmentSpec matcher `aeq` judgmentSpec j) = Nothing
-  | otherwise =
-      runFreshMT $ matchList (zip (map convertSubstTerm (judgmentSpots matcher)) (map convertSubstTerm (judgmentSpots j)))
+instance Plated Judgment where
+  plate _ = pure
+
+instance Match Judgment where
+  isConst = null . getParamSpots . judgmentSpecParts . judgmentSpec
+  mkVar_maybe = Nothing
+  isVar _ = Nothing
+
+  matchConstructor x y = do
+    spots <- zipWithMaybe (NodePair undefined) (judgmentSpots x) (judgmentSpots y)
+    Just
+      [
+      ]
+
+zipWithMaybe :: (a -> b -> c) -> [a] -> [b] -> Maybe [c]
+zipWithMaybe _ [] [] = Just []
+zipWithMaybe _ [] _ = Nothing
+zipWithMaybe _ _ [] = Nothing
+zipWithMaybe f (x:xs) (y:ys) = (f x y :) <$> zipWithMaybe f xs ys
+
+-- matchJudgment :: Judgment -> Judgment -> Maybe (Substitution Term)
+-- matchJudgment matcher j
+--   | not (judgmentSpec matcher `aeq` judgmentSpec j) = Nothing
+--   | otherwise =
+--       runFreshMT $ matchList (zip (map convertSubstTerm (judgmentSpots matcher)) (map convertSubstTerm (judgmentSpots j)))
 

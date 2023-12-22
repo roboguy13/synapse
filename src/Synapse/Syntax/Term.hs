@@ -11,6 +11,10 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE MonoLocalBinds #-}
 
 module Synapse.Syntax.Term
   where
@@ -33,6 +37,9 @@ import Control.Monad
 
 import Text.Show.Deriving
 
+import Type.Reflection (pattern TypeRep)
+import Data.Type.Equality
+
 import Data.Coerce
 import Data.Void
 import Data.Fix
@@ -40,6 +47,8 @@ import Data.Functor.Product
 import Data.Functor.Compose
 
 import Unsafe.Coerce
+
+#include "src/Synapse/SubstUtils.hs"
 
 newtype BinderSort = BinderSort Int
   deriving (Show, Generic, Typeable)
@@ -100,10 +109,10 @@ pattern FTSubst :: SubstTerm -> Substitution Term -> FSubstTerm
 pattern FTSubst t s = Fix (Compose (TermX (Pair t (Const s))))
 
 newtype TermSpecAlt = TermSpecAlt Term
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 data TermSpec = TermSpec [String] [TermSpecAlt]
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 type Grammar = [TermSpec]
 
@@ -221,15 +230,17 @@ instance Subst (TermX x) BinderSort
 
 instance Subst (TermX Void) Void
 
-instance (Subst (TermX x) x, Alpha x) => Subst (TermX x) (TermX x) where
-  isvar (Var x) = Just $ SubstName $ coerce x
+instance forall x b. (Typeable x, Typeable b, Subst (TermX x) b, Alpha b) => Subst (TermX x) (TermX b) where
+  isvar (Var x) = do
+    Refl <- testEquality (TypeRep @x) (TypeRep @b)
+    Just $ SubstName $ coerce x
   isvar _ = Nothing
 
 instance (Subst (TermX x) x, Typeable x, Alpha x) => Match (TermX x) where
   isConst (Symbol _) = True
   isConst _ = False
 
-  mkVar = Var . coerce
+  mkVar_maybe = Just $ Var . coerce
 
   isVar (Var x) = Just $ coerce x
   isVar _ = Nothing
@@ -261,4 +272,10 @@ splitLast (x:xs) =
   (x:rest, z)
 
 deriveShow1 ''TermX
+
+-- instance (Subst (TermX a) b, Alpha b) => Subst (TermX a) (TermX b)
+instance (Subst (TermX a) b) => Subst (TermX a) (Substitution b)
+instance Subst (TermX a) Void
+
+-- SUBST_INSTANCES1(TermX)
 

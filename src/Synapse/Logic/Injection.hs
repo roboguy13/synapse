@@ -2,6 +2,7 @@
 
 module Synapse.Logic.Injection
   (Injection
+  ,mkInjection
   ,inject
   ,project
   ,injectionPrism
@@ -35,6 +36,9 @@ data Injection a b =
 
 injectionPrism :: Injection a b -> Prism' b a
 injectionPrism inj = prism' (inject inj) (project inj)
+
+mkInjection :: (a -> b) -> (b -> Maybe a) -> Injection a b
+mkInjection = Injection
 
 instance Category Injection where
   id = Injection id Just

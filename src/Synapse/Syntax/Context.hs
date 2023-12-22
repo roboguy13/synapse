@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Synapse.Syntax.Context where
 
@@ -10,6 +11,7 @@ import Synapse.Syntax.Judgment
 import Synapse.Syntax.Term
 import Synapse.Logic.Unify
 import Synapse.Logic.Substitution
+import Synapse.Logic.Injection
 import Synapse.Ppr
 import Synapse.Orphans
 
@@ -19,7 +21,10 @@ import Data.Void
 
 import Unbound.Generics.LocallyNameless
 
-import Data.Functor.Compose
+import Control.Lens.Plated
+import Control.Lens.TH
+import Control.Lens hiding (Context, Empty, (<.>))
+
 import Data.Fix
 
 #include "src/Synapse/SubstUtils.hs"
@@ -29,7 +34,7 @@ data Context
   = Empty
   | CtxVar (Name Context)
   | Extend Context Judgment
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 instance Ppr Context where
   ppr Empty = text "<>"
@@ -38,18 +43,85 @@ instance Ppr Context where
 
 data HypJudgment =
   HypJudgment
-  { hypJudgmentCtx :: Context
-  , hypJudgmentBody :: Judgment
+  { _hypJudgmentCtx :: Context
+  , _hypJudgmentBody :: Judgment
   }
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 data SomeJudgment
   = SomeBasicJudgment Judgment
   | SomeHypJudgment HypJudgment
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
+
+makePrisms ''SomeJudgment
+makeLenses ''HypJudgment
+
+instance Alpha HypJudgment
+
+-- SUBST_INSTANCES(HypJudgment)
+
+instance Plated HypJudgment where
+  plate _ = pure
+
+instance Plated Context where
+  plate _ Empty = pure Empty
+  plate _ (CtxVar v) = pure (CtxVar v)
+  plate f (Extend ctx j) = Extend <$> f ctx <*> pure j
+
+instance Match Context where
+  isConst Empty = True
+  isConst _ = False
+
+  isVar (CtxVar v) = Just v
+  isVar _ = Nothing
+
+  mkVar_maybe = Just CtxVar
+
+instance Match HypJudgment where
+  isConst _ = False -- TODO: Is this right?
+  mkVar_maybe = Nothing
+  isVar _ = Nothing
+
+  matchConstructor j1 j2 =
+    Just []
+      -- [NodePair (mkInjection (flip (set hypJudgmentCtx) j1) (Just . _hypJudgmentCtx)) (_hypJudgmentCtx j1) (_hypJudgmentCtx j2)
+      -- ,NodePair undefined (_hypJudgmentBody j1) (_hypJudgmentBody j2)
+      -- ]
+
+instance Subst SomeJudgment SomeJudgment
+instance Subst SomeJudgment Judgment
+instance Subst SomeJudgment HypJudgment
+instance Subst SomeJudgment Context
+instance (Subst SomeJudgment a, Alpha a) => Subst SomeJudgment (TermX a)
+instance Subst SomeJudgment BinderSort
+instance Subst SomeJudgment JudgmentSpec
+instance Subst SomeJudgment TermSpec
+instance Subst SomeJudgment TermSpecAlt
+instance Subst SomeJudgment Void
+instance Subst SomeJudgment a => Subst SomeJudgment (SpecPart' a)
+instance (Subst SomeJudgment a, Alpha a) => Subst SomeJudgment (Substitution a)
+
+instance Alpha SomeJudgment
+
+instance Plated SomeJudgment where
+  plate _ = pure
+
+instance Match SomeJudgment where
+  isConst (SomeBasicJudgment j) = isConst j
+  isConst (SomeHypJudgment j) = isConst j
+
+  mkVar_maybe = Nothing
+  isVar _ = Nothing
+
+  matchConstructor (SomeBasicJudgment j1) (SomeBasicJudgment j2) =
+    Just [NodePair (mkInjection SomeBasicJudgment (preview _SomeBasicJudgment)) j1 j2]
+  matchConstructor (SomeHypJudgment j1) (SomeHypJudgment j2) =
+    Just [NodePair (mkInjection SomeHypJudgment (preview _SomeHypJudgment)) j1 j2]
+  matchConstructor _ _ = Nothing
+
 
 instance Ppr HypJudgment where
-  ppr j = ppr (hypJudgmentCtx j) <+> text "|-" <+> ppr (hypJudgmentBody j)
+  ppr j = ppr (_hypJudgmentCtx j) <+> text "|-" <+> ppr (_hypJudgmentBody j)
 
 instance Ppr SomeJudgment where
   ppr (SomeBasicJudgment x) = ppr x
@@ -57,7 +129,11 @@ instance Ppr SomeJudgment where
 
 instance Alpha Context
 
-SUBST_INSTANCES(Context)
+instance Subst Context Context where
+  isvar (CtxVar x) = Just $ SubstName x
+  isvar _ = Nothing
+
+-- SUBST_INSTANCES(Context)
 
 instance Subst Context Judgment
 instance Subst Context a => Subst Context (Substitution a)
@@ -71,9 +147,17 @@ instance Subst Context TermSpec
 instance Subst Context TermSpecAlt
 instance Subst Context Void
 
-instance Subst Context Context where
-  isvar (CtxVar x) = Just $ SubstName x
-  isvar _ = Nothing
+instance Subst HypJudgment Context
+instance Subst HypJudgment HypJudgment
+instance Subst HypJudgment Judgment
+instance Subst HypJudgment JudgmentSpec
+instance Subst HypJudgment TermSpec
+instance Subst HypJudgment TermSpecAlt
+instance (Subst HypJudgment a) => Subst HypJudgment (SpecPart' a)
+instance Subst HypJudgment Void
+instance (Subst HypJudgment a) => Subst HypJudgment (Substitution a)
+instance (Alpha a, Subst HypJudgment a) => Subst HypJudgment (TermX a)
+instance Subst HypJudgment BinderSort
 
 -- matchHypJudgment :: HypJudgment -> HypJudgment -> Maybe (Substitution Term)
 -- matchHypJudgment matcher j = undefined
