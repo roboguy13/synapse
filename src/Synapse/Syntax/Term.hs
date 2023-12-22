@@ -68,6 +68,9 @@ data TermX x
   | TermX x
   deriving (Show, Generic, Typeable)
 
+instance Alpha a => Eq (TermX a) where
+  (==) = aeq
+
 instance Functor TermX where
   fmap _ (Symbol s) = Symbol s
   fmap _ (IntLit i) = IntLit i
@@ -231,24 +234,24 @@ instance (Subst (TermX x) x, Typeable x, Alpha x) => Match (TermX x) where
   isVar (Var x) = Just $ coerce x
   isVar _ = Nothing
 
-  getChildren = children
-
-  isBinder (Binder bSort bnd) =
-    let (x, body) = unsafeUnbind bnd
-    in Just (binderSortId bSort, coerce x, body)
-  isBinder _ = Nothing
-
-  isApp (App x y) =
-    let (priorArgs, lastArg) = splitLast y
-    in
-    Just (App x priorArgs, lastArg)
-  isApp _ = Nothing
-
-  mkApp (App (App x y) z) w = mkApp (App x (y ++ z)) w
-  mkApp (App x y) w = App x (y ++ [w])
-  mkApp x w = App x [w]
-
-  mkBinder = (Binder (BinderSort 0) .) . bind . coerce
+  -- getChildren = children
+  --
+  -- isBinder (Binder bSort bnd) =
+  --   let (x, body) = unsafeUnbind bnd
+  --   in Just (binderSortId bSort, coerce x, body)
+  -- isBinder _ = Nothing
+  --
+  -- isApp (App x y) =
+  --   let (priorArgs, lastArg) = splitLast y
+  --   in
+  --   Just (App x priorArgs, lastArg)
+  -- isApp _ = Nothing
+  --
+  -- mkApp (App (App x y) z) w = mkApp (App x (y ++ z)) w
+  -- mkApp (App x y) w = App x (y ++ [w])
+  -- mkApp x w = App x [w]
+  --
+  -- mkBinder = (Binder (BinderSort 0) .) . bind . coerce
 
 splitLast :: [a] -> ([a], a)
 splitLast [x] = ([], x)

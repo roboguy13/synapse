@@ -75,17 +75,6 @@ instance Subst Context Context where
   isvar (CtxVar x) = Just $ SubstName x
   isvar _ = Nothing
 
-instance Match Context where
-  isConst Empty = True
-  isConst _ = False
-
-  mkVar = CtxVar
-
-  isVar (CtxVar x) = Just x
-  isVar _ = Nothing
-
-  -- getChildren (Extend 
-
 -- matchHypJudgment :: HypJudgment -> HypJudgment -> Maybe (Substitution Term)
 -- matchHypJudgment matcher j = undefined
 

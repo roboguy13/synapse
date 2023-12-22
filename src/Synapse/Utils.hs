@@ -11,6 +11,17 @@ import GHC.Generics
 
 import Data.Fix
 
+import Control.Monad.State
+import Control.Monad.Identity
+
+collapseFresh :: Monad m => FreshMT m a -> FreshM (m a)
+collapseFresh = FreshMT . collapseStateT . unFreshMT
+
+collapseStateT :: Monad m => StateT Integer m a -> State Integer (m a)
+collapseStateT st = StateT $ \s ->
+  let results = evalStateT st s
+  in Identity (results, s)
+
 data Void1 a
   deriving (Generic)
 

@@ -41,6 +41,8 @@ executable synapse
       Synapse.Logic.Substitution
       Synapse.Logic.Derivation
       Synapse.Logic.Search
+      Synapse.Logic.Injection
+      Synapse.Logic.ConstrEq
       Synapse.Ppr
       Synapse.Orphans
       Synapse.Utils

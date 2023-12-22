@@ -13,9 +13,9 @@ data QueryResult =
   QueryResult
   { queryResultDerivation :: Derivation SomeJudgment
   , queryResultTermSubst :: Substitution Term
-  , queryResultJudgmentSubst :: Substitution SomeJudgment
+  -- , queryResultJudgmentSubst :: Substitution SomeJudgment
   }
 
-query :: [Rule] -> Query -> QueryResult
-query = undefined
+runQuery :: [Rule] -> Query -> [QueryResult]
+runQuery rules query = undefined
 
