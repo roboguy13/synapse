@@ -20,6 +20,7 @@ module Synapse.Logic.Unify
 
   ,Substitution
   ,applySubstitution
+  ,module Synapse.Logic.Match
   )
   where
 

@@ -14,7 +14,7 @@ import Prelude hiding (id, (.))
 
 import Control.Category
 
-import Synapse.Logic.Substitution
+import Synapse.Logic.Substitution as Substitution
 import Synapse.Logic.Injection
 import Synapse.Logic.SubstMap
 import Synapse.Logic.ConstrEq
@@ -47,12 +47,6 @@ class (Eq a, Plated a, Subst a a, Typeable a, Alpha a) => Match a where
     then Just $ zipWith (InjPair id) (children x) (children y)
     else Nothing
 
-  -- isBinder :: a -> Maybe (Int, Name a, a)
-  -- isApp :: a -> Maybe (a, a)
-
-  -- mkApp :: a -> a -> a
-  -- mkBinder :: Name a -> a -> a
-
 type SubstMap' a = SubstMap (ContainedTypes a)
 
 data MatchSubst a =
@@ -69,33 +63,26 @@ instance SubstMapSing (ContainedTypes a) => Semigroup (MatchSubst a) where
 instance SubstMapSing (ContainedTypes a) => Monoid (MatchSubst a) where
   mempty = MatchSubst mempty mempty
 
--- -- | How to get to the substitution we need. Constructors for the different @Substitution@s to use.
+-- | How to get to the substitution we need. Constructors for the different @Substitution@s to use.
 data Path a b where
-  PathInj :: Injection a b -> Path a b
+  PathInj :: Injection b a -> Path a b
   PathSubstMap :: Dict (In b (ContainedTypes a)) -> Path a b
-
-
--- data Item a b where
---   InjItem :: Dict (Match b) -> Injection b a -> b -> Item a b
---   SubstMapItem :: Dict (In b (ContainedTypes a)) -> b -> Item a b
 
 pathToLens :: Path a b -> Lens' (MatchSubst a) (Substitution b)
 pathToLens (PathInj inj) =
   lens
-    (substMap (inject inj) . _matchSubstInj)
-    (\matchSubst sbst -> matchSubst & matchSubstInj .~ substMap (\x -> case project inj x of Just r -> r) sbst) -- TODO: Does this make sense?
+    (substMap (\x -> case project inj x of Just r -> r) . _matchSubstInj) -- TODO: Does this make sense?
+    (\matchSubst sbst -> matchSubst & matchSubstInj .~ substMap (inject inj) sbst)
 
 pathToLens (PathSubstMap Dict) =
   lens
     (getSubst . _matchSubstMap)
     (\matchSubst sbst -> matchSubst & matchSubstMap .~ putSubst sbst (_matchSubstMap matchSubst))
 
--- pathLookup :: Path a b -> MatchSubst b -> Name a -> Maybe a
--- pathLookup (PathInj inj) mSbst = lookupInj inj (matchSubstInj mSbst)
+pathLookup :: Path a b -> MatchSubst a -> Name b -> Maybe b
+pathLookup path mSbst x = Substitution.lookup x (mSbst ^. pathToLens path)
 
---
--- pathExtend :: Path a b -> 
-
--- itemExtend
-
+pathExtend :: Path a b -> MatchSubst a -> Name b -> b -> MatchSubst a
+pathExtend path mSbst x t =
+  mSbst & pathToLens path %~ \sbst -> extend sbst x t
 
