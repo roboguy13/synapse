@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE DataKinds #-}
@@ -39,12 +39,10 @@ import Unbound.Generics.LocallyNameless
 import Control.Monad.Trans
 import Control.Monad.Writer
 import Control.Applicative
-import Control.Lens.Plated
+import Control.Lens
 
 import Data.Typeable
 import Data.Foldable
-
-import GHC.Generics
 
 import Data.Maybe
 
@@ -54,13 +52,13 @@ import Data.Proxy
 doOccursCheck :: Bool
 doOccursCheck = True
 
-match :: (SubstMapSing (ContainedTypes a), Match a) => a -> a -> FreshMT Maybe (MatchSubst a)
+match :: (Match a) => a -> a -> FreshMT Maybe SubstMap
 match = matchSubst mempty 
 
-unify :: (SubstMapSing (ContainedTypes a), Match a) => a -> a -> FreshMT Maybe (MatchSubst a)
+unify :: (Match a) => a -> a -> FreshMT Maybe SubstMap
 unify = unifySubst mempty
 
-matchList :: (SubstMapSing (ContainedTypes a), Match a) => [(a, a)] -> FreshMT Maybe (MatchSubst a)
+matchList :: (Match a) => [(a, a)] -> FreshMT Maybe SubstMap
 matchList = go mempty
   where
     go subst [] = pure subst
@@ -68,66 +66,66 @@ matchList = go mempty
       subst' <- matchSubst subst x y
       go subst' rest
 
-matchSubst :: Match a => MatchSubst a -> a -> a -> FreshMT Maybe (MatchSubst a)
-matchSubst = solve matchSolver idPath
+matchSubst :: Match a => SubstMap -> a -> a -> FreshMT Maybe SubstMap
+matchSubst = solve matchSolver
 
-unifySubst :: Match a => MatchSubst a -> a -> a -> FreshMT Maybe (MatchSubst a)
-unifySubst = solve unifySolver idPath
+unifySubst :: Match a => SubstMap -> a -> a -> FreshMT Maybe SubstMap
+unifySubst = solve unifySolver
 
 type UnifierM = FreshMT Maybe
 
-data Solver a =
+data Solver =
   Solver
-  { solve :: forall b. Match b => Path a b -> MatchSubst a -> b -> b -> UnifierM (MatchSubst a)
-  , solveVarRight :: forall b. Match b => Path a b -> MatchSubst a -> Name b -> b -> UnifierM (MatchSubst a)
+  { solve :: forall a. Match a => SubstMap -> a -> a -> UnifierM SubstMap
+  , solveVarRight :: forall a. Match a => SubstMap -> Name a -> a -> UnifierM SubstMap
   }
 
-unifySolver :: Match a => Solver a
+unifySolver :: Solver
 unifySolver = Solver (solveSubstInj unifySolver) (solveVar unifySolver)
 
-matchSolver :: Match a => Solver a
-matchSolver = Solver (solveSubstInj matchSolver) (\_ _ _ _ -> lift Nothing)
+matchSolver :: Solver
+matchSolver = Solver (solveSubstInj matchSolver) (\_ _ _ -> lift Nothing)
 
-solveSubstInj :: (Match a, Match b) =>
-  Solver a ->
-  Path a b -> MatchSubst a -> b -> b -> UnifierM (MatchSubst a)
-solveSubstInj solver path sbst x y
+solveSubstInj :: (Match a) =>
+  Solver ->
+  SubstMap -> a -> a -> UnifierM SubstMap
+solveSubstInj solver sbst x y
   | isConst x, isConst y = do
       guard (x == y)
       pure sbst
 
-  | Just xV <- isVar x = solveVar solver path sbst xV y
-  | Just yV <- isVar y = solveVarRight solver path sbst yV x
+  | Just xV <- isVar x = solveVar solver sbst xV y
+  | Just yV <- isVar y = solveVarRight solver sbst yV x
 
   | otherwise = do
       ps <- lift (matchConstructor x y)
-      solveList solver path sbst ps
+      solveList solver sbst ps
 
-solveList :: forall a b. (Match a, Match b) =>
-  Solver a ->
-  Path a b -> MatchSubst a -> [NodePair b] -> UnifierM (MatchSubst a)
-solveList solver path sbst [] = pure sbst
-solveList solver path sbst (NodePair pathC x y : rest) = do
-  sbst' <- solveSubstInj solver (pathC . path) sbst x y
-  solveList solver path sbst' rest
+solveList :: forall a. (Match a) =>
+  Solver ->
+  SubstMap -> [NodePair a] -> UnifierM SubstMap
+solveList solver sbst [] = pure sbst
+solveList solver sbst (NodePair x y : rest) = do
+  sbst' <- solveSubstInj solver sbst x y
+  solveList solver sbst' rest
 
-solveVar :: (Match a, Match b) => Solver a -> Path a b -> MatchSubst a -> Name b -> b -> UnifierM (MatchSubst a)
-solveVar solver path sbst v y = do
+solveVar :: (Match a) => Solver -> SubstMap -> Name a -> a -> UnifierM SubstMap
+solveVar solver sbst v y = do
   guard (not (occurs v y))
 
   case isVar y of
     Just yV ->
-      case pathLookup path sbst yV of
+      case sbst ^. (substLens . to (Substitution.lookup yV)) of 
         Just yInst -> do
           guard (not (occurs v yInst))
           mkVar <- lift mkVar_maybe
-          solveSubstInj solver path sbst (mkVar v) yInst
+          solveSubstInj solver sbst (mkVar v) yInst
 
         Nothing ->
-          pure $ pathExtend path sbst v y
+          pure $ sbst & substLens %~ extend v y
 
     Nothing ->
-      pure $ pathExtend path sbst v y
+      pure $ sbst & substLens %~ extend v y
 
 occurs :: Match a => Name a -> a -> Bool
 occurs =

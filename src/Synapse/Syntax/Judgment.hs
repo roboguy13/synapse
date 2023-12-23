@@ -53,9 +53,6 @@ data Judgment =
   }
   deriving (Show, Generic, Eq)
 
-type instance ContainedTypes JudgmentSpec = '[SpecPart, TermSpec]
-type instance ContainedTypes Judgment = '[JudgmentSpec, SubstTerm]
-
 instance Plated JudgmentSpec where plate _ = pure
 instance Subst JudgmentSpec JudgmentSpec
 instance Subst JudgmentSpec a => Subst JudgmentSpec (SpecPart' a)
@@ -72,10 +69,13 @@ instance Match JudgmentSpec where
 
   matchConstructor js1 js2 = do
     guard (judgmentSpecParts js1 == judgmentSpecParts js2)
-    specs <- zipWithMaybe (NodePair undefined) (judgmentSpecArity js1) (judgmentSpecArity js2)
-    undefined
+    specs <- zipWithMaybe NodePair (judgmentSpecArity js1) (judgmentSpecArity js2)
+    Just specs
 
-  applyMatchSubst = undefined
+  applySubstMap sbst (JudgmentSpec parts arity) =
+    JudgmentSpec
+      parts
+      (map (applySubstMap sbst) arity)
 
 isOperatorPart :: SpecPart' a -> Maybe String
 isOperatorPart (OperatorPart s) = Just s
@@ -100,7 +100,7 @@ sortSpecs = sortBy go
 instance Alpha a => Alpha (SpecPart' a)
 instance Alpha JudgmentSpec
 
-isJudgmentWellFormed :: Judgment -> Maybe [MatchSubst Term]
+isJudgmentWellFormed :: Judgment -> Maybe [SubstMap]
 isJudgmentWellFormed jd =
     map snd <$> zipWithM termMatchesSpec (map convertSubstTerm (judgmentSpots jd)) (judgmentSpecArity (judgmentSpec jd))
 
@@ -147,11 +147,13 @@ instance Match Judgment where
   isVar _ = Nothing
 
   matchConstructor x y = do
-    spots <- zipWithMaybe (NodePair (PathSubstMap (There Here))) (judgmentSpots x) (judgmentSpots y)
+    spots <- zipWithMaybe NodePair (judgmentSpots x) (judgmentSpots y)
     Just
-      (NodePair (PathSubstMap undefined) (judgmentSpec x) (judgmentSpec y)
-      :spots)
-      
+      (NodePair (judgmentSpec x) (judgmentSpec y)
+       : spots)
+
+  applySubstMap sbst (Judgment spec spots) =
+    Judgment (applySubstMap sbst spec) (map (applySubstMap sbst) spots)
 
 -- matchJudgment :: Judgment -> Judgment -> Maybe (Substitution Term)
 -- matchJudgment matcher j

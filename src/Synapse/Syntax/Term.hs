@@ -37,7 +37,7 @@ import Unbound.Generics.LocallyNameless.Bind
 import GHC.Generics
 import Data.Typeable
 
-import Control.Lens.Plated
+import Control.Lens hiding ((<.>))
 import Control.Applicative
 import Control.Monad
 
@@ -125,9 +125,6 @@ type Grammar = [TermSpec]
 instance Alpha TermSpecAlt
 instance Alpha TermSpec
 
-type instance ContainedTypes TermSpecAlt = ContainedTypes Term
-type instance ContainedTypes TermSpec = '[TermSpecAlt]
-
 instance Plated TermSpec where
   plate _ = pure
 
@@ -137,7 +134,10 @@ instance Match TermSpec where
   isVar _ = Nothing
   matchConstructor (TermSpec xs alts) (TermSpec ys alts') = do
     guard (xs == ys)
-    zipWithMaybe (NodePair undefined) alts alts'
+    zipWithMaybe NodePair alts alts'
+
+  applySubstMap substMap (TermSpec xs ys) =
+    TermSpec xs (map (applySubstMap substMap) ys)
 
 instance Plated TermSpecAlt where
   plate f (TermSpecAlt t) = TermSpecAlt <$> plate (fmap unTermSpecAlt . f . TermSpecAlt) t
@@ -158,15 +158,7 @@ instance Match TermSpecAlt where
   mkVar_maybe = fmap ((TermSpecAlt .) . (. coerce)) mkVar_maybe
   isVar = coerce . isVar . unTermSpecAlt
 
-  applyMatchSubst matchSubst =
-    let matchSubst' :: MatchSubst Term
-        matchSubst' =
-          MatchSubst
-          { _matchSubstInj = coerce (_matchSubstInj matchSubst)
-          , _matchSubstMap = _matchSubstMap matchSubst
-          }
-    in
-    coerce (applyMatchSubst matchSubst')
+  applySubstMap substMap = coerce (applySubstMap substMap :: Term -> Term)
 
 dropX :: TermX a -> Maybe Term
 dropX (TermX {}) = Nothing
@@ -242,7 +234,7 @@ termSpecAltSplit :: TermSpecAlt -> Maybe (String, [Term])
 termSpecAltSplit (TermSpecAlt (App (Symbol c) args)) = Just (c, args)
 termSpecAltSplit _ = Nothing
 
-termMatchesSpec :: Term -> TermSpec -> Maybe (TermSpecAlt, MatchSubst Term)
+termMatchesSpec :: Term -> TermSpec -> Maybe (TermSpecAlt, SubstMap)
 termMatchesSpec t (TermSpec _ spec) = go spec
   where
     go []                                 = Nothing
@@ -285,8 +277,6 @@ instance forall x b. (Typeable x, Typeable b, Subst (TermX x) b, Alpha b) => Sub
     Just $ SubstName $ coerce x
   isvar _ = Nothing
 
-type instance ContainedTypes (TermX x) = '[]
-
 instance (Subst (TermX x) x, Typeable x, Alpha x) => Match (TermX x) where
   isConst (Symbol _) = True
   isConst _ = False
@@ -296,7 +286,7 @@ instance (Subst (TermX x) x, Typeable x, Alpha x) => Match (TermX x) where
   isVar (Var x) = Just $ coerce x
   isVar _ = Nothing
 
-  applyMatchSubst = applySubstitution . _matchSubstInj
+  applySubstMap sbst = applySubstitution (sbst ^. substLens) --applySubstitution . _matchSubstInj
 
   -- matchConstructor x y = _
 

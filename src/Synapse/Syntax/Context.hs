@@ -22,7 +22,7 @@ import Synapse.Orphans
 
 import Control.Category
 
-import GHC.Generics
+import GHC.Generics (Generic)
 
 import Data.Void
 
@@ -75,8 +75,6 @@ instance Plated Context where
   plate _ (CtxVar v) = pure (CtxVar v)
   plate f (Extend ctx j) = Extend <$> f ctx <*> pure j
 
-type instance ContainedTypes Context = '[Judgment]
-
 instance Match Context where
   isConst Empty = True
   isConst _ = False
@@ -89,11 +87,15 @@ instance Match Context where
   matchConstructor Empty Empty = Just []
   matchConstructor (Extend ctx j) (Extend ctx' j') =
     Just
-      [NodePair id ctx ctx'
-      ,NodePair (PathSubstMap Here) j j'
+      [NodePair ctx ctx'
+      ,NodePair j j'
       ]
 
-type instance ContainedTypes HypJudgment = '[Context, Judgment]
+  applySubstMap sbst Empty = Empty
+  applySubstMap sbst ctx@(CtxVar _) = applySubstitution (sbst ^. substLens) ctx
+  applySubstMap sbst (Extend ctx j) =
+    Extend (applySubstMap sbst ctx)
+           (applySubstMap sbst j)
 
 instance Match HypJudgment where
   isConst _ = False -- TODO: Is this right?
@@ -102,9 +104,14 @@ instance Match HypJudgment where
 
   matchConstructor j1 j2 =
       Just
-        [NodePair (PathSubstMap Here) (_hypJudgmentCtx j1) (_hypJudgmentCtx j2)
-        ,NodePair (PathSubstMap (There Here)) (_hypJudgmentBody j1) (_hypJudgmentBody j2)
+        [NodePair (_hypJudgmentCtx j1) (_hypJudgmentCtx j2)
+        ,NodePair (_hypJudgmentBody j1) (_hypJudgmentBody j2)
         ]
+
+  applySubstMap sbst (HypJudgment ctx body) =
+    HypJudgment
+      (applySubstMap sbst ctx)
+      (applySubstMap sbst body)
 
 instance Subst SomeJudgment SomeJudgment
 instance Subst SomeJudgment Judgment
@@ -124,8 +131,6 @@ instance Alpha SomeJudgment
 instance Plated SomeJudgment where
   plate _ = pure
 
-type instance ContainedTypes SomeJudgment = '[]
-
 instance Match SomeJudgment where
   isConst (SomeBasicJudgment j) = isConst j
   isConst (SomeHypJudgment j) = isConst j
@@ -134,10 +139,13 @@ instance Match SomeJudgment where
   isVar _ = Nothing
 
   matchConstructor (SomeBasicJudgment j1) (SomeBasicJudgment j2) =
-    Just [NodePair (PathInj (mkInjection SomeBasicJudgment (preview _SomeBasicJudgment))) j1 j2]
+    Just [NodePair j1 j2]
   matchConstructor (SomeHypJudgment j1) (SomeHypJudgment j2) =
-    Just [NodePair (PathInj (mkInjection SomeHypJudgment (preview _SomeHypJudgment))) j1 j2]
+    Just [NodePair j1 j2]
   matchConstructor _ _ = Nothing
+
+  applySubstMap sbst (SomeBasicJudgment j) = SomeBasicJudgment $ applySubstMap sbst j
+  applySubstMap sbst (SomeHypJudgment j) = SomeHypJudgment $ applySubstMap sbst j
 
 
 instance Ppr HypJudgment where

@@ -46,8 +46,8 @@ isEmpty _                 = False
 oneSubst :: Name a -> a -> Substitution a
 oneSubst n v = Substitution [(n, v)]
 
-extend :: Substitution a -> Name a -> a -> Substitution a
-extend (Substitution xs) n v = Substitution $ (n, v) : xs
+extend :: Name a -> a -> Substitution a -> Substitution a
+extend n v (Substitution xs) = Substitution $ (n, v) : xs
 
 lookup :: Name a -> Substitution a -> Maybe a
 lookup n (Substitution xs) = List.lookup n xs

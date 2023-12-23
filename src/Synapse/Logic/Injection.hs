@@ -6,10 +6,10 @@ module Synapse.Logic.Injection
   ,inject
   ,project
   ,injectionPrism
-  ,injectSubst
-  ,oneSubstInj
-  ,lookupInj
-  ,extendInj
+  -- ,injectSubst
+  -- ,oneSubstInj
+  -- ,lookupInj
+  -- ,extendInj
   )
   where
 
@@ -45,21 +45,21 @@ instance Category Injection where
   inj1 . inj2 =
     Injection (inject inj1 . inject inj2) (project inj2 <=< project inj1)
 
-injectSubst :: Subst a a => Injection b a -> Name a -> b -> a -> a
-injectSubst inj v x = subst v (inject inj x)
-
-oneSubstInj ::
-  Injection a b ->
-  Name a -> a -> Substitution b
-oneSubstInj inj x y = oneSubst (coerce x) (inject inj y)
-
-lookupInj ::
-  Injection a b ->
-  Substitution b -> Name a -> Maybe a
-lookupInj inj sbst x = project inj =<< Substitution.lookup (coerce x) sbst
-
-extendInj ::
-  Injection a b ->
-  Substitution b -> Name a -> a -> Substitution b
-extendInj inj sbst x = extend sbst (coerce x) . inject inj
+-- injectSubst :: Subst a a => Injection b a -> Name a -> b -> a -> a
+-- injectSubst inj v x = subst v (inject inj x)
+--
+-- oneSubstInj ::
+--   Injection a b ->
+--   Name a -> a -> Substitution b
+-- oneSubstInj inj x y = oneSubst (coerce x) (inject inj y)
+--
+-- lookupInj ::
+--   Injection a b ->
+--   Substitution b -> Name a -> Maybe a
+-- lookupInj inj sbst x = project inj =<< Substitution.lookup (coerce x) sbst
+--
+-- extendInj ::
+--   Injection a b ->
+--   Substitution b -> Name a -> a -> Substitution b
+-- extendInj inj sbst x y = extend (coerce x) sbst $ inject inj y
 
