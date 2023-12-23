@@ -4,16 +4,23 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Synapse.Syntax.Context where
+
+import Prelude hiding (id, (.))
 
 import Synapse.Syntax.Judgment
 import Synapse.Syntax.Term
 import Synapse.Logic.Unify
 import Synapse.Logic.Substitution
 import Synapse.Logic.Injection
+import Synapse.Logic.SubstMap
 import Synapse.Ppr
 import Synapse.Orphans
+
+import Control.Category
 
 import GHC.Generics
 
@@ -68,6 +75,8 @@ instance Plated Context where
   plate _ (CtxVar v) = pure (CtxVar v)
   plate f (Extend ctx j) = Extend <$> f ctx <*> pure j
 
+type instance ContainedTypes Context = '[Judgment]
+
 instance Match Context where
   isConst Empty = True
   isConst _ = False
@@ -77,16 +86,25 @@ instance Match Context where
 
   mkVar_maybe = Just CtxVar
 
+  matchConstructor Empty Empty = Just []
+  matchConstructor (Extend ctx j) (Extend ctx' j') =
+    Just
+      [NodePair id ctx ctx'
+      ,NodePair (PathSubstMap Here) j j'
+      ]
+
+type instance ContainedTypes HypJudgment = '[Context, Judgment]
+
 instance Match HypJudgment where
   isConst _ = False -- TODO: Is this right?
   mkVar_maybe = Nothing
   isVar _ = Nothing
 
   matchConstructor j1 j2 =
-    Just []
-      -- [NodePair (mkInjection (flip (set hypJudgmentCtx) j1) (Just . _hypJudgmentCtx)) (_hypJudgmentCtx j1) (_hypJudgmentCtx j2)
-      -- ,NodePair undefined (_hypJudgmentBody j1) (_hypJudgmentBody j2)
-      -- ]
+      Just
+        [NodePair (PathSubstMap Here) (_hypJudgmentCtx j1) (_hypJudgmentCtx j2)
+        ,NodePair (PathSubstMap (There Here)) (_hypJudgmentBody j1) (_hypJudgmentBody j2)
+        ]
 
 instance Subst SomeJudgment SomeJudgment
 instance Subst SomeJudgment Judgment
@@ -106,6 +124,8 @@ instance Alpha SomeJudgment
 instance Plated SomeJudgment where
   plate _ = pure
 
+type instance ContainedTypes SomeJudgment = '[]
+
 instance Match SomeJudgment where
   isConst (SomeBasicJudgment j) = isConst j
   isConst (SomeHypJudgment j) = isConst j
@@ -114,9 +134,9 @@ instance Match SomeJudgment where
   isVar _ = Nothing
 
   matchConstructor (SomeBasicJudgment j1) (SomeBasicJudgment j2) =
-    Just [NodePair (mkInjection SomeBasicJudgment (preview _SomeBasicJudgment)) j1 j2]
+    Just [NodePair (PathInj (mkInjection SomeBasicJudgment (preview _SomeBasicJudgment))) j1 j2]
   matchConstructor (SomeHypJudgment j1) (SomeHypJudgment j2) =
-    Just [NodePair (mkInjection SomeHypJudgment (preview _SomeHypJudgment)) j1 j2]
+    Just [NodePair (PathInj (mkInjection SomeHypJudgment (preview _SomeHypJudgment))) j1 j2]
   matchConstructor _ _ = Nothing
 
 

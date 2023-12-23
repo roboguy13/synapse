@@ -15,14 +15,20 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Synapse.Syntax.Term
   where
 
 import Synapse.Ppr
 import Synapse.Logic.Unify
+import Synapse.Logic.SubstMap
 import Synapse.Logic.Substitution
 import Synapse.Orphans
+import Synapse.Utils
 
 import Unbound.Generics.LocallyNameless
 import Unbound.Generics.LocallyNameless.Unsafe
@@ -108,7 +114,7 @@ pattern TSubst t s = TermX (Fix (Compose (TermX (Pair t (Const s)))))
 pattern FTSubst :: SubstTerm -> Substitution Term -> FSubstTerm
 pattern FTSubst t s = Fix (Compose (TermX (Pair t (Const s))))
 
-newtype TermSpecAlt = TermSpecAlt Term
+newtype TermSpecAlt = TermSpecAlt { unTermSpecAlt :: Term }
   deriving (Show, Generic, Eq)
 
 data TermSpec = TermSpec [String] [TermSpecAlt]
@@ -118,6 +124,49 @@ type Grammar = [TermSpec]
 
 instance Alpha TermSpecAlt
 instance Alpha TermSpec
+
+type instance ContainedTypes TermSpecAlt = ContainedTypes Term
+type instance ContainedTypes TermSpec = '[TermSpecAlt]
+
+instance Plated TermSpec where
+  plate _ = pure
+
+instance Match TermSpec where
+  isConst _ = False
+  mkVar_maybe = Nothing
+  isVar _ = Nothing
+  matchConstructor (TermSpec xs alts) (TermSpec ys alts') = do
+    guard (xs == ys)
+    zipWithMaybe (NodePair undefined) alts alts'
+
+instance Plated TermSpecAlt where
+  plate f (TermSpecAlt t) = TermSpecAlt <$> plate (fmap unTermSpecAlt . f . TermSpecAlt) t
+
+instance Subst TermSpec TermSpec
+instance (Alpha a, Subst TermSpec a) => Subst TermSpec (TermX a)
+instance Subst TermSpec Void
+instance Subst TermSpec TermSpecAlt
+instance Subst TermSpec BinderSort
+
+instance Subst TermSpecAlt TermSpecAlt
+instance (Alpha a, Subst TermSpecAlt a) => Subst TermSpecAlt (TermX a)
+instance Subst TermSpecAlt Void
+instance Subst TermSpecAlt BinderSort
+
+instance Match TermSpecAlt where
+  isConst = isConst . unTermSpecAlt
+  mkVar_maybe = fmap ((TermSpecAlt .) . (. coerce)) mkVar_maybe
+  isVar = coerce . isVar . unTermSpecAlt
+
+  applyMatchSubst matchSubst =
+    let matchSubst' :: MatchSubst Term
+        matchSubst' =
+          MatchSubst
+          { _matchSubstInj = coerce (_matchSubstInj matchSubst)
+          , _matchSubstMap = _matchSubstMap matchSubst
+          }
+    in
+    coerce (applyMatchSubst matchSubst')
 
 dropX :: TermX a -> Maybe Term
 dropX (TermX {}) = Nothing
@@ -193,7 +242,7 @@ termSpecAltSplit :: TermSpecAlt -> Maybe (String, [Term])
 termSpecAltSplit (TermSpecAlt (App (Symbol c) args)) = Just (c, args)
 termSpecAltSplit _ = Nothing
 
-termMatchesSpec :: Term -> TermSpec -> Maybe (TermSpecAlt, Substitution Term)
+termMatchesSpec :: Term -> TermSpec -> Maybe (TermSpecAlt, MatchSubst Term)
 termMatchesSpec t (TermSpec _ spec) = go spec
   where
     go []                                 = Nothing
@@ -236,6 +285,8 @@ instance forall x b. (Typeable x, Typeable b, Subst (TermX x) b, Alpha b) => Sub
     Just $ SubstName $ coerce x
   isvar _ = Nothing
 
+type instance ContainedTypes (TermX x) = '[]
+
 instance (Subst (TermX x) x, Typeable x, Alpha x) => Match (TermX x) where
   isConst (Symbol _) = True
   isConst _ = False
@@ -244,6 +295,10 @@ instance (Subst (TermX x) x, Typeable x, Alpha x) => Match (TermX x) where
 
   isVar (Var x) = Just $ coerce x
   isVar _ = Nothing
+
+  applyMatchSubst = applySubstitution . _matchSubstInj
+
+  -- matchConstructor x y = _
 
   -- getChildren = children
   --

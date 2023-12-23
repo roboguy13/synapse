@@ -8,6 +8,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Synapse.Logic.Match
   where
@@ -32,8 +33,6 @@ import Unbound.Generics.LocallyNameless
 
 data NodePair a where
   NodePair :: forall a b. Match b => Path a b -> b -> b -> NodePair a
-  -- InjPair :: forall a b. Match b => Injection b a -> b -> b -> NodePair a
-  -- SubstMapPair :: forall a b. In b (ContainedTypes a) => b -> b -> NodePair a
 
 -- | How to get to the substitution we need. Constructors for the different @Substitution@s to use.
 data Path a b where
@@ -55,9 +54,11 @@ class (Eq a, Plated a, Subst a a, Typeable a, Alpha a) => Match a where
   mkVar_maybe :: Maybe (Name a -> a)
   isVar :: a -> Maybe (Name a)
 
+  applyMatchSubst :: MatchSubst a -> a -> a
+
   matchConstructor :: a -> a -> Maybe [NodePair a]
 
-  default matchConstructor :: (Generic a, GConstrEq (Rep a), Plated a) => a -> a -> Maybe [NodePair a]
+  default matchConstructor :: (ContainedTypes a ~ '[], Generic a, GConstrEq (Rep a), Plated a) => a -> a -> Maybe [NodePair a]
   matchConstructor x y =
     if constrEq x y
     then Just $ zipWith (NodePair (PathInj id)) (children x) (children y)

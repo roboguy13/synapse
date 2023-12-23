@@ -10,6 +10,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE PolyKinds #-}
 
 module Synapse.Logic.SubstMap
   where
@@ -19,8 +20,19 @@ import Synapse.Logic.Substitution as Substitution
 import Unbound.Generics.LocallyNameless
 
 import Control.Lens
+import Data.Void
+import Data.Fix
+import Data.Functor.Product
+import Data.Functor.Compose
+import Data.Functor.Const
 
 type family ContainedTypes a :: [*]
+
+type instance ContainedTypes Void = '[]
+type instance ContainedTypes () = '[]
+type instance ContainedTypes [a] = ContainedTypes a
+-- type instance ContainedTypes (Fix f) = ContainedTypes (f (Fix f))
+-- type instance ContainedTypes (Compose f g a) = ContainedTypes (f (g a))
 
 data SubstMap ts where
   Nil :: SubstMap '[]
@@ -31,7 +43,13 @@ data SubstMap ts where
 data Elem a ts where
   Here :: Elem a (a ': ts)
   There :: Elem a ts -> Elem a (b ': ts)
-  Descend :: Elem a (ContainedTypes b) -> Elem a (b ': ts)
+
+  Descend ::
+    -- | Used properly, this case should imply @(Not (Elem a ts), Not (a :~: b))@, but this isn't
+    -- encoded in the type
+    -- TODO: Is there a better representation that guarantees this by
+    -- construction?
+    Elem a (ContainedTypes b) -> Elem a (b ': ts)
 
 elemToLens :: Elem a ts -> Lens' (SubstMap ts) (Substitution a)
 elemToLens Here = lens (\(Cons _ x _) -> x) (\(Cons t _ xs) x -> Cons t x xs)

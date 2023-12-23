@@ -31,3 +31,10 @@ instance Alpha (Void1 a)
 -- instance Generic b => Subst (Void1 a) b
 instance Subst a (Void1 b)
 
+-- | Ensure the lists have the same length
+zipWithMaybe :: (a -> b -> c) -> [a] -> [b] -> Maybe [c]
+zipWithMaybe _ [] [] = Just []
+zipWithMaybe _ [] _ = Nothing
+zipWithMaybe _ _ [] = Nothing
+zipWithMaybe f (x:xs) (y:ys) = (f x y :) <$> zipWithMaybe f xs ys
+

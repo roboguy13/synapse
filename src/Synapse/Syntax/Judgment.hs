@@ -3,6 +3,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DataKinds #-}
 
 module Synapse.Syntax.Judgment
   where
@@ -12,8 +14,10 @@ module Synapse.Syntax.Judgment
 import Synapse.Syntax.Term
 import Synapse.Logic.Substitution
 import Synapse.Logic.Unify
+import Synapse.Logic.SubstMap
 import Synapse.Ppr
 import Synapse.Orphans
+import Synapse.Utils
 
 import Unbound.Generics.LocallyNameless
 
@@ -49,6 +53,30 @@ data Judgment =
   }
   deriving (Show, Generic, Eq)
 
+type instance ContainedTypes JudgmentSpec = '[SpecPart, TermSpec]
+type instance ContainedTypes Judgment = '[JudgmentSpec, SubstTerm]
+
+instance Plated JudgmentSpec where plate _ = pure
+instance Subst JudgmentSpec JudgmentSpec
+instance Subst JudgmentSpec a => Subst JudgmentSpec (SpecPart' a)
+instance Subst JudgmentSpec TermSpec
+instance Subst JudgmentSpec TermSpecAlt
+instance Subst JudgmentSpec Void
+instance Subst JudgmentSpec BinderSort
+instance (Alpha a, Subst JudgmentSpec a) => Subst JudgmentSpec (TermX a)
+
+instance Match JudgmentSpec where
+  isConst _ = False
+  mkVar_maybe = Nothing
+  isVar _ = Nothing
+
+  matchConstructor js1 js2 = do
+    guard (judgmentSpecParts js1 == judgmentSpecParts js2)
+    specs <- zipWithMaybe (NodePair undefined) (judgmentSpecArity js1) (judgmentSpecArity js2)
+    undefined
+
+  applyMatchSubst = undefined
+
 isOperatorPart :: SpecPart' a -> Maybe String
 isOperatorPart (OperatorPart s) = Just s
 isOperatorPart _ = Nothing
@@ -72,7 +100,7 @@ sortSpecs = sortBy go
 instance Alpha a => Alpha (SpecPart' a)
 instance Alpha JudgmentSpec
 
-isJudgmentWellFormed :: Judgment -> Maybe [Substitution Term]
+isJudgmentWellFormed :: Judgment -> Maybe [MatchSubst Term]
 isJudgmentWellFormed jd =
     map snd <$> zipWithM termMatchesSpec (map convertSubstTerm (judgmentSpots jd)) (judgmentSpecArity (judgmentSpec jd))
 
@@ -119,16 +147,11 @@ instance Match Judgment where
   isVar _ = Nothing
 
   matchConstructor x y = do
-    spots <- zipWithMaybe (NodePair undefined) (judgmentSpots x) (judgmentSpots y)
+    spots <- zipWithMaybe (NodePair (PathSubstMap (There Here))) (judgmentSpots x) (judgmentSpots y)
     Just
-      [
-      ]
-
-zipWithMaybe :: (a -> b -> c) -> [a] -> [b] -> Maybe [c]
-zipWithMaybe _ [] [] = Just []
-zipWithMaybe _ [] _ = Nothing
-zipWithMaybe _ _ [] = Nothing
-zipWithMaybe f (x:xs) (y:ys) = (f x y :) <$> zipWithMaybe f xs ys
+      (NodePair (PathSubstMap undefined) (judgmentSpec x) (judgmentSpec y)
+      :spots)
+      
 
 -- matchJudgment :: Judgment -> Judgment -> Maybe (Substitution Term)
 -- matchJudgment matcher j
