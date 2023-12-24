@@ -238,7 +238,7 @@ termMatchesSpec :: Term -> TermSpec -> Maybe (TermSpecAlt, SubstMap)
 termMatchesSpec t (TermSpec _ spec) = go spec
   where
     go []                                 = Nothing
-    go (alt@(TermSpecAlt altSpec) : alts) = sequenceA (fmap (alt, ) runFreshMT (match t altSpec)) <|> go alts
+    go (alt@(TermSpecAlt altSpec) : alts) = fmap (alt, ) (match t altSpec) <|> go alts
 
 
 pattern Binder' bnd = Binder (BinderSort 0) bnd

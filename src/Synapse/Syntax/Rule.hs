@@ -2,6 +2,8 @@ module Synapse.Syntax.Rule where
 
 import Synapse.Syntax.Judgment
 import Synapse.Syntax.Context
+import Synapse.Logic.SubstMap
+import Synapse.Logic.Match
 import Synapse.Ppr
 
 data Rule =
@@ -11,6 +13,13 @@ data Rule =
   , ruleConclusion :: SomeJudgment
   }
   deriving (Show)
+
+substMapRule :: SubstMap -> Rule -> Rule
+substMapRule substMap rule =
+  rule
+  { rulePremises = map (applySubstMap substMap) (rulePremises rule)
+  , ruleConclusion = applySubstMap substMap (ruleConclusion rule)
+  }
 
 newtype Query = Query SomeJudgment
   deriving Show

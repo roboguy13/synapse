@@ -52,13 +52,13 @@ import Data.Proxy
 doOccursCheck :: Bool
 doOccursCheck = True
 
-match :: (Match a) => a -> a -> FreshMT Maybe SubstMap
-match = matchSubst mempty 
+match :: Match a => a -> a -> Maybe SubstMap
+match x = runFreshMT . matchSubst mempty x
 
-unify :: (Match a) => a -> a -> FreshMT Maybe SubstMap
-unify = unifySubst mempty
+unify :: Match a => a -> a -> Maybe SubstMap
+unify x = runFreshMT . unifySubst mempty x
 
-matchList :: (Match a) => [(a, a)] -> FreshMT Maybe SubstMap
+matchList :: Match a => [(a, a)] -> FreshMT Maybe SubstMap
 matchList = go mempty
   where
     go subst [] = pure subst
@@ -86,7 +86,7 @@ unifySolver = Solver (solveSubstInj unifySolver) (solveVar unifySolver)
 matchSolver :: Solver
 matchSolver = Solver (solveSubstInj matchSolver) (\_ _ _ -> lift Nothing)
 
-solveSubstInj :: (Match a) =>
+solveSubstInj :: Match a =>
   Solver ->
   SubstMap -> a -> a -> UnifierM SubstMap
 solveSubstInj solver sbst x y
@@ -101,7 +101,7 @@ solveSubstInj solver sbst x y
       ps <- lift (matchConstructor x y)
       solveList solver sbst ps
 
-solveList :: forall a. (Match a) =>
+solveList :: forall a. Match a =>
   Solver ->
   SubstMap -> [NodePair a] -> UnifierM SubstMap
 solveList solver sbst [] = pure sbst
@@ -109,7 +109,7 @@ solveList solver sbst (NodePair x y : rest) = do
   sbst' <- solveSubstInj solver sbst x y
   solveList solver sbst' rest
 
-solveVar :: (Match a) => Solver -> SubstMap -> Name a -> a -> UnifierM SubstMap
+solveVar :: Match a => Solver -> SubstMap -> Name a -> a -> UnifierM SubstMap
 solveVar solver sbst v y = do
   guard (not (occurs v y))
 
