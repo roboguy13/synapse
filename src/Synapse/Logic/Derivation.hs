@@ -3,8 +3,8 @@ module Synapse.Logic.Derivation
 
 import Synapse.Ppr
 
--- A rose tree
-data Derivation a = DerivationStep a [Derivation a]
+-- | A rose tree
+data Derivation a = DerivationStep (Maybe String) a [Derivation a]
   deriving (Show)
 
 -- | The horizontal width
@@ -65,7 +65,7 @@ centerBelow a b =
        a $$ b
 
 instance (Ppr t) => Ppr (Derivation t) where
-  ppr (DerivationStep goal subtrees) =
+  ppr (DerivationStep ruleName goal subtrees) =
     let goalDoc = ppr goal
         subtreeDocs = map ppr subtrees
 

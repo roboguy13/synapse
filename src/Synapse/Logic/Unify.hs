@@ -51,6 +51,8 @@ import Data.Maybe
 import Data.Dependent.Map
 import Data.Proxy
 
+import Debug.Trace
+
 doOccursCheck :: Bool
 doOccursCheck = True
 
@@ -61,13 +63,13 @@ unify :: Match a => a -> a -> Maybe SubstMap
 unify x = runFreshMT . unifyM x
 
 matchM :: Match a => a -> a -> FreshMT Maybe SubstMap
-matchM = matchSubst mempty
+matchM = matchSubst substMapEmpty
 
 unifyM :: Match a => a -> a -> FreshMT Maybe SubstMap
-unifyM = unifySubst mempty
+unifyM = unifySubst substMapEmpty
 
 matchList :: Match a => [(a, a)] -> FreshMT Maybe SubstMap
-matchList = go mempty
+matchList = go substMapEmpty
   where
     go subst [] = pure subst
     go subst ((x, y) : rest) = do
@@ -117,7 +119,7 @@ solveList solver sbst (NodePair x y : rest) = do
   sbst' <- solveSubstMap solver sbst x y
   solveList solver sbst' rest
 
-solveVar :: Match a => Solver -> SubstMap -> Name a -> a -> UnifierM SubstMap
+solveVar :: forall a. Match a => Solver -> SubstMap -> Name a -> a -> UnifierM SubstMap
 solveVar solver sbst v y = do
   guard (not (occurs v y))
 
@@ -133,7 +135,11 @@ solveVar solver sbst v y = do
           pure $ sbst & substLens %~ extend v y
 
     Nothing ->
-      pure $ sbst & substLens %~ extend v y
+      case sbst ^. (substLens . to (Substitution.lookup v)) of
+        Just vInst -> do
+          guard (vInst == y)
+          pure sbst
+        Nothing -> pure $ sbst & substLens %~ extend v y
 
 occurs :: Match a => Name a -> a -> Bool
 occurs =

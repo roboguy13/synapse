@@ -40,4 +40,4 @@ rules
   ?e_1 -->* ?e_3
 
 queries
-  unit -->* unit
+  ((lambda x unit) unit) -->* ((lambda x unit) unit)

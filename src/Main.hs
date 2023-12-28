@@ -20,5 +20,6 @@ main = do
     Right sys -> do
       putStrLn $ "Parsed:\n" ++ show (ppr sys)
       putStrLn "==="
-      mapM_ (print . queryResultDerivation . head . runQuery (systemRules sys)) (systemQueries sys)
+      mapM_ (print . runQuery (systemRules sys)) (systemQueries sys)
+      -- mapM_ (print . queryResultDerivation . head . runQuery (systemRules sys)) (systemQueries sys)
 

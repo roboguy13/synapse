@@ -3,7 +3,7 @@
 
 module Synapse.Logic.Substitution
   (Substitution
-  ,substMap
+  -- ,substMap
   ,isEmpty
   ,oneSubst
   ,extend
@@ -26,11 +26,11 @@ import Data.Coerce
 newtype Substitution a = Substitution [(Name a, a)]
   deriving (Semigroup, Monoid, Show, Generic, Typeable)
 
--- | NOTE: Be careful using this
-substMap :: (a -> b) -> Substitution a -> Substitution b
-substMap f (Substitution xs) = Substitution $ map go xs
-  where
-    go (x, t) = (coerce x, f t)
+-- -- | NOTE: Be careful using this
+-- substMap :: (a -> b) -> Substitution a -> Substitution b
+-- substMap f (Substitution xs) = Substitution $ map go xs
+--   where
+--     go (x, t) = (coerce x, f t)
 
 instance (Show a, Typeable a, Alpha a) => Alpha (Substitution a)
 

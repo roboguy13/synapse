@@ -28,9 +28,10 @@ import Debug.Trace
 data QueryResult =
   QueryResult
   { queryResultDerivation :: Derivation SomeJudgment
-  , queryResultTermSubst :: Substitution Term
+  , queryResultTermSubst :: Substitution SubstTerm
   -- , queryResultJudgmentSubst :: Substitution SomeJudgment
   }
+  deriving Show
 
 instance Ppr QueryResult where
   ppr = ppr . queryResultDerivation
@@ -40,24 +41,23 @@ runQuery rules0 =
   let rules = runFreshM $ traverse freshenRule rules0
   in
   -- traceShow rules $
-  runQueryFreshened rules
+  runQueryFreshened rules substMapEmpty
 
-runQueryFreshened :: [Rule] -> Query -> [QueryResult]
-runQueryFreshened rules (Query query) = do
-  (matchingRule, substMap) <- mapMaybe (`matchRule` query) rules
+runQueryFreshened :: [Rule] -> SubstMap -> Query -> [QueryResult]
+runQueryFreshened rules substMap (Query query) = do
+  (matchingRule, substMap') <- mapMaybe (matchRule substMap query) rules
 
   case _rulePremises matchingRule of
-    [] -> pure $ QueryResult (derivationOne matchingRule) (substMap ^. substLens)
+    [] -> pure $ QueryResult (derivationOne matchingRule) (substMap' ^. substLens)
     subgoals -> do
-        -- TODO: I should probably be performing a substitution here
-      subResult <- traverse (runQueryFreshened rules . Query) subgoals
+      subResult <- traverse (runQueryFreshened rules substMap' . Query) subgoals
       let subDerivation = map queryResultDerivation subResult
-      pure $ QueryResult (DerivationStep (_ruleConclusion matchingRule) subDerivation) (substMap ^. substLens)
+      pure $ QueryResult (DerivationStep (_ruleName matchingRule) (_ruleConclusion matchingRule) subDerivation) (substMap' ^. substLens)
 
-matchRule :: Rule -> SomeJudgment -> Maybe (Rule, SubstMap)
-matchRule rule y = do
-  substMap <- match (_ruleConclusion rule) y
-  pure (substMapRule substMap rule, substMap)
+matchRule :: SubstMap -> SomeJudgment -> Rule -> Maybe (Rule, SubstMap)
+matchRule substMap y rule = do
+  substMap' <- runFreshMT $ matchSubst substMap (_ruleConclusion rule) y
+  trace ("substMap = " ++ show (substMap' ^. substLens :: Substitution SubstTerm)) $ pure (substMapRule substMap' rule, substMap')
 
 freshenRule :: Rule -> FreshM Rule
 freshenRule rule = do
@@ -72,5 +72,5 @@ freshenName x = do
   pure (x, y)
 
 derivationOne :: Rule -> Derivation SomeJudgment
-derivationOne rule = DerivationStep (_ruleConclusion rule) []
+derivationOne rule = DerivationStep (_ruleName rule) (_ruleConclusion rule) []
 

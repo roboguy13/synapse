@@ -16,6 +16,7 @@
 module Synapse.Logic.SubstMap
   (SubstMap
   ,substLens
+  ,substMapEmpty
   )
   where
 
@@ -56,12 +57,15 @@ substLens =
         Just Refl -> Cons sbst xs
         Nothing -> Cons x (set xs sbst)
 
-instance Semigroup SubstMap where
-  Nil <> ys       = ys
-  Cons x xs <> ys = ys & substLens %~ (<> x)
+substMapEmpty :: SubstMap
+substMapEmpty = Nil
 
-instance Monoid SubstMap where
-  mempty = Nil
+-- instance Semigroup SubstMap where
+--   Nil <> ys       = ys
+--   Cons x xs <> ys = ys & substLens %~ (<> x)
+
+-- instance Monoid SubstMap where
+--   mempty = Nil
 
 -- type family ContainedTypes a :: [*]
 --
