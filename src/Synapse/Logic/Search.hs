@@ -39,7 +39,7 @@ runQuery :: [Rule] -> Query -> [QueryResult]
 runQuery rules0 =
   let rules = runFreshM $ traverse freshenRule rules0
   in
-  traceShow rules $
+  -- traceShow rules $
   runQueryFreshened rules
 
 runQueryFreshened :: [Rule] -> Query -> [QueryResult]
@@ -49,9 +49,9 @@ runQueryFreshened rules (Query query) = do
   case _rulePremises matchingRule of
     [] -> pure $ QueryResult (derivationOne matchingRule) (substMap ^. substLens)
     subgoals -> do
-      subgoal <- subgoals
-      let subResult = runQueryFreshened rules $ Query subgoal
-          subDerivation = queryResultDerivation <$> subResult
+        -- TODO: I should probably be performing a substitution here
+      subResult <- traverse (runQueryFreshened rules . Query) subgoals
+      let subDerivation = map queryResultDerivation subResult
       pure $ QueryResult (DerivationStep (_ruleConclusion matchingRule) subDerivation) (substMap ^. substLens)
 
 matchRule :: Rule -> SomeJudgment -> Maybe (Rule, SubstMap)
