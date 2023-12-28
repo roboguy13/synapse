@@ -1,24 +1,45 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Synapse.Syntax.Rule where
 
 import Synapse.Syntax.Judgment
 import Synapse.Syntax.Context
+import Synapse.Syntax.Term
 import Synapse.Logic.SubstMap
 import Synapse.Logic.Match
 import Synapse.Ppr
 
+import Control.Lens hiding ((<.>))
+
 data Rule =
   Rule
-  { ruleName :: Maybe String
-  , rulePremises :: [SomeJudgment]
-  , ruleConclusion :: SomeJudgment
+  { _ruleName :: Maybe String
+  , _rulePremises :: [SomeJudgment]
+  , _ruleConclusion :: SomeJudgment
   }
   deriving (Show)
+
+makeLenses ''Rule
+
+instance RenameTerms Rule where
+  renameTerms xs rule =
+    rule
+    { _rulePremises = map (renameTerms xs) $ _rulePremises rule
+    , _ruleConclusion = renameTerms xs $ _ruleConclusion rule
+    }
+
+  termFVs rule =
+    concatMap termFVs (_rulePremises rule) ++ termFVs (_ruleConclusion rule)
+
+-- instance HasTerms Rule where
+--   terms f (Rule n premises conclusion) =
+--     Rule n <$> traverse (terms f) premises <*> terms f conclusion
 
 substMapRule :: SubstMap -> Rule -> Rule
 substMapRule substMap rule =
   rule
-  { rulePremises = map (applySubstMap substMap) (rulePremises rule)
-  , ruleConclusion = applySubstMap substMap (ruleConclusion rule)
+  { _rulePremises = map (applySubstMap substMap) (_rulePremises rule)
+  , _ruleConclusion = applySubstMap substMap (_ruleConclusion rule)
   }
 
 newtype Query = Query SomeJudgment
@@ -27,16 +48,16 @@ newtype Query = Query SomeJudgment
 instance Ppr Rule where
   ppr rule =
     vcat $
-      case rulePremises rule of
+      case _rulePremises rule of
         [] -> [text ""]
         premises -> map ppr premises
         ++
       [text "-------" <+> nameDoc]
         ++
-      [ppr (ruleConclusion rule)]
+      [ppr (_ruleConclusion rule)]
     where
       nameDoc =
-        case ruleName rule of
+        case _ruleName rule of
           Nothing -> mempty
           Just rName -> text "[" <.> text rName <.> text "]"
 

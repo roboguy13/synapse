@@ -25,6 +25,7 @@ import Control.Category
 import GHC.Generics (Generic)
 
 import Data.Void
+import Data.Typeable
 
 import Unbound.Generics.LocallyNameless
 
@@ -62,6 +63,34 @@ data SomeJudgment
 
 makePrisms ''SomeJudgment
 makeLenses ''HypJudgment
+
+instance RenameTerms Context where
+  renameTerms _ Empty = Empty
+  renameTerms _ (CtxVar x) = CtxVar x
+  renameTerms xs (Extend ctx j) =
+    Extend (renameTerms xs ctx) (renameTerms xs j)
+
+  termFVs Empty = []
+  termFVs (CtxVar _) = []
+  termFVs (Extend ctx j) =
+    termFVs j ++ termFVs ctx
+
+instance RenameTerms HypJudgment where
+  renameTerms xs (HypJudgment ctx j) =
+    HypJudgment (renameTerms xs ctx) (renameTerms xs j)
+
+  termFVs (HypJudgment ctx j) =
+    termFVs ctx ++ termFVs j
+
+instance RenameTerms SomeJudgment where
+  renameTerms xs (SomeBasicJudgment j) =
+    SomeBasicJudgment (renameTerms xs j)
+
+  renameTerms xs (SomeHypJudgment j) =
+    SomeHypJudgment (renameTerms xs j)
+
+  termFVs (SomeBasicJudgment j) = termFVs j
+  termFVs (SomeHypJudgment j) = termFVs j
 
 instance Alpha HypJudgment
 
@@ -117,7 +146,7 @@ instance Subst SomeJudgment SomeJudgment
 instance Subst SomeJudgment Judgment
 instance Subst SomeJudgment HypJudgment
 instance Subst SomeJudgment Context
-instance (Subst SomeJudgment a, Alpha a) => Subst SomeJudgment (TermX a)
+instance (Typeable a, Subst SomeJudgment a, Alpha a) => Subst SomeJudgment (TermX a)
 instance Subst SomeJudgment BinderSort
 instance Subst SomeJudgment JudgmentSpec
 instance Subst SomeJudgment TermSpec
@@ -168,7 +197,7 @@ instance Subst Context a => Subst Context (Substitution a)
 -- instance Subst (TermX x)
 
 instance Subst Context JudgmentSpec
-instance (Subst Context x, Alpha x) => Subst Context (TermX x)
+instance (Typeable x, Subst Context x, Alpha x) => Subst Context (TermX x)
 instance Subst Context BinderSort
 instance Subst Context a => Subst Context (SpecPart' a)
 instance Subst Context TermSpec
@@ -184,7 +213,7 @@ instance Subst HypJudgment TermSpecAlt
 instance (Subst HypJudgment a) => Subst HypJudgment (SpecPart' a)
 instance Subst HypJudgment Void
 instance (Subst HypJudgment a) => Subst HypJudgment (Substitution a)
-instance (Alpha a, Subst HypJudgment a) => Subst HypJudgment (TermX a)
+instance (Typeable a, Alpha a, Subst HypJudgment a) => Subst HypJudgment (TermX a)
 instance Subst HypJudgment BinderSort
 
 -- matchHypJudgment :: HypJudgment -> HypJudgment -> Maybe (Substitution Term)

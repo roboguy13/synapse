@@ -30,6 +30,8 @@ import Data.List
 import Data.Maybe
 import Data.Ord
 
+import Data.Typeable
+
 import Control.Lens.Plated
 
 data SpecPart' a
@@ -53,6 +55,19 @@ data Judgment =
   }
   deriving (Show, Generic, Eq)
 
+instance RenameTerms JudgmentSpec where
+  renameTerms xs (JudgmentSpec parts arity) =
+    JudgmentSpec parts (map (renameTerms xs) arity)
+
+  termFVs (JudgmentSpec _ arity) = concatMap termFVs arity
+
+instance RenameTerms Judgment where
+  renameTerms xs (Judgment spec spots) =
+    Judgment (renameTerms xs spec) (map (renameTerms xs) spots)
+
+  termFVs (Judgment spec spots) =
+    termFVs spec ++ concatMap termFVs spots
+
 instance Plated JudgmentSpec where plate _ = pure
 instance Subst JudgmentSpec JudgmentSpec
 instance Subst JudgmentSpec a => Subst JudgmentSpec (SpecPart' a)
@@ -60,7 +75,7 @@ instance Subst JudgmentSpec TermSpec
 instance Subst JudgmentSpec TermSpecAlt
 instance Subst JudgmentSpec Void
 instance Subst JudgmentSpec BinderSort
-instance (Alpha a, Subst JudgmentSpec a) => Subst JudgmentSpec (TermX a)
+instance (Typeable a, Alpha a, Subst JudgmentSpec a) => Subst JudgmentSpec (TermX a)
 
 instance Match JudgmentSpec where
   isConst _ = False
@@ -133,7 +148,7 @@ instance (Subst Judgment a) => Subst Judgment (Substitution a)
 instance Subst Judgment JudgmentSpec
 instance Subst Judgment TermSpec
 instance Subst Judgment TermSpecAlt
-instance (Subst Judgment x, Alpha x) => Subst Judgment (TermX x)
+instance (Typeable x, Subst Judgment x, Alpha x) => Subst Judgment (TermX x)
 instance Subst Judgment BinderSort
 instance Subst Judgment a => Subst Judgment (SpecPart' a)
 instance Subst Judgment Void

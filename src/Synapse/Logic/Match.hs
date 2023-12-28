@@ -8,7 +8,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Synapse.Logic.Match
   where
@@ -33,6 +33,8 @@ import Unbound.Generics.LocallyNameless
 
 data NodePair a where
   NodePair :: forall a b. (Match b) => b -> b -> NodePair a
+
+deriving instance Show a => Show (NodePair a)
 
 class (Eq a, Plated a, Subst a a, Typeable a, Alpha a) => Match a where
   isConst :: a -> Bool

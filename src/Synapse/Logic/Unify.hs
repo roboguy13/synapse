@@ -14,6 +14,8 @@ module Synapse.Logic.Unify
   ,Match (..)
   ,match
   ,unify
+  ,matchM
+  ,unifyM
   ,matchList
   ,matchSubst
   ,unifySubst
@@ -53,10 +55,16 @@ doOccursCheck :: Bool
 doOccursCheck = True
 
 match :: Match a => a -> a -> Maybe SubstMap
-match x = runFreshMT . matchSubst mempty x
+match x = runFreshMT . matchM x
 
 unify :: Match a => a -> a -> Maybe SubstMap
-unify x = runFreshMT . unifySubst mempty x
+unify x = runFreshMT . unifyM x
+
+matchM :: Match a => a -> a -> FreshMT Maybe SubstMap
+matchM = matchSubst mempty
+
+unifyM :: Match a => a -> a -> FreshMT Maybe SubstMap
+unifyM = unifySubst mempty
 
 matchList :: Match a => [(a, a)] -> FreshMT Maybe SubstMap
 matchList = go mempty
@@ -81,15 +89,15 @@ data Solver =
   }
 
 unifySolver :: Solver
-unifySolver = Solver (solveSubstInj unifySolver) (solveVar unifySolver)
+unifySolver = Solver (solveSubstMap unifySolver) (solveVar unifySolver)
 
 matchSolver :: Solver
-matchSolver = Solver (solveSubstInj matchSolver) (\_ _ _ -> lift Nothing)
+matchSolver = Solver (solveSubstMap matchSolver) (\_ _ _ -> lift Nothing)
 
-solveSubstInj :: Match a =>
+solveSubstMap :: Match a =>
   Solver ->
   SubstMap -> a -> a -> UnifierM SubstMap
-solveSubstInj solver sbst x y
+solveSubstMap solver sbst x y
   | isConst x, isConst y = do
       guard (x == y)
       pure sbst
@@ -106,7 +114,7 @@ solveList :: forall a. Match a =>
   SubstMap -> [NodePair a] -> UnifierM SubstMap
 solveList solver sbst [] = pure sbst
 solveList solver sbst (NodePair x y : rest) = do
-  sbst' <- solveSubstInj solver sbst x y
+  sbst' <- solveSubstMap solver sbst x y
   solveList solver sbst' rest
 
 solveVar :: Match a => Solver -> SubstMap -> Name a -> a -> UnifierM SubstMap
@@ -119,7 +127,7 @@ solveVar solver sbst v y = do
         Just yInst -> do
           guard (not (occurs v yInst))
           mkVar <- lift mkVar_maybe
-          solveSubstInj solver sbst (mkVar v) yInst
+          solveSubstMap solver sbst (mkVar v) yInst
 
         Nothing ->
           pure $ sbst & substLens %~ extend v y

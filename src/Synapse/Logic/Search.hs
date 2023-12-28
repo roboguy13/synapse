@@ -1,3 +1,5 @@
+{-# LANGUAGE RankNTypes #-}
+
 module Synapse.Logic.Search
   where
 
@@ -9,10 +11,19 @@ import Synapse.Syntax.Term
 import Synapse.Syntax.Judgment
 import Synapse.Logic.Substitution
 import Synapse.Logic.Unify
+import Synapse.Ppr
+
+import Data.Bifunctor
+import Data.Coerce
+
+import Unbound.Generics.LocallyNameless
 
 import Control.Lens
+import Control.Monad.Trans
 
 import Data.Maybe
+
+import Debug.Trace
 
 data QueryResult =
   QueryResult
@@ -21,22 +32,45 @@ data QueryResult =
   -- , queryResultJudgmentSubst :: Substitution SomeJudgment
   }
 
+instance Ppr QueryResult where
+  ppr = ppr . queryResultDerivation
+
 runQuery :: [Rule] -> Query -> [QueryResult]
-runQuery rules (Query query) = do
+runQuery rules0 =
+  let rules = runFreshM $ traverse freshenRule rules0
+  in
+  traceShow rules $
+  runQueryFreshened rules
+
+runQueryFreshened :: [Rule] -> Query -> [QueryResult]
+runQueryFreshened rules (Query query) = do
   (matchingRule, substMap) <- mapMaybe (`matchRule` query) rules
 
-  case rulePremises matchingRule of
+  case _rulePremises matchingRule of
     [] -> pure $ QueryResult (derivationOne matchingRule) (substMap ^. substLens)
     subgoals -> do
       subgoal <- subgoals
-      let subResult = runQuery rules $ Query subgoal
+      let subResult = runQueryFreshened rules $ Query subgoal
           subDerivation = queryResultDerivation <$> subResult
-      pure $ QueryResult (DerivationStep (ruleConclusion matchingRule) subDerivation) (substMap ^. substLens)
+      pure $ QueryResult (DerivationStep (_ruleConclusion matchingRule) subDerivation) (substMap ^. substLens)
 
 matchRule :: Rule -> SomeJudgment -> Maybe (Rule, SubstMap)
-matchRule x y = do
-  substMap <- match y (ruleConclusion x)
-  pure (substMapRule substMap x, substMap)
+matchRule rule y = do
+  substMap <- match (_ruleConclusion rule) y
+  pure (substMapRule substMap rule, substMap)
+
+freshenRule :: Rule -> FreshM Rule
+freshenRule rule = do
+  let theFVs :: [Name Term]
+      theFVs = coerce $ termFVs rule
+  renaming <- traverse freshenName theFVs
+  pure $ renameTerms renaming rule
+
+freshenName :: Name a -> FreshM (Name a, Name a)
+freshenName x = do
+  y <- fresh x
+  pure (x, y)
 
 derivationOne :: Rule -> Derivation SomeJudgment
-derivationOne rule = DerivationStep (ruleConclusion rule) []
+derivationOne rule = DerivationStep (_ruleConclusion rule) []
+
