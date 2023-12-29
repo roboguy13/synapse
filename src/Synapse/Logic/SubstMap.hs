@@ -16,11 +16,17 @@
 module Synapse.Logic.SubstMap
   (SubstMap
   ,substLens
-  ,substMapEmpty
+  ,hlistEmpty
+  ,SubstMapCells
+  ,convertSubstMap
+  -- ,substMapEmpty
   )
   where
 
 import Synapse.Logic.Substitution as Substitution
+import Synapse.Logic.Propagator
+
+import Control.Monad.ST
 
 import Unbound.Generics.LocallyNameless
 
@@ -34,31 +40,43 @@ import Data.Functor.Const
 import Data.Type.Equality
 import Type.Reflection
 import Data.Typeable
+import Data.Default
 
-data SubstMap where
-  Nil :: SubstMap
-  Cons :: Typeable a => Substitution a -> SubstMap -> SubstMap
+data HList f where
+  Nil :: HList f
+  Cons :: Typeable a => f a -> HList f -> HList f
 
-substLens :: forall a. Typeable a => Lens' SubstMap (Substitution a)
+substLens :: forall f a. (Default (f a), Typeable a) =>
+  Lens' (HList f) (f a)
 substLens =
   lens get set
   where
-    get :: SubstMap -> Substitution a
-    get Nil = mempty
+    get :: HList f -> f a
+    get Nil = def
     get (Cons @b x xs) =
       case testEquality (TypeRep @a) (TypeRep @b) of
         Just Refl -> x
         Nothing -> get xs
 
-    set :: SubstMap -> Substitution a -> SubstMap
+    set :: HList f -> f a -> HList f
     set Nil sbst = Cons sbst Nil
     set (Cons @b x xs) sbst =
       case testEquality (TypeRep @a) (TypeRep @b) of
         Just Refl -> Cons sbst xs
         Nothing -> Cons x (set xs sbst)
 
-substMapEmpty :: SubstMap
-substMapEmpty = Nil
+hlistEmpty :: HList f
+hlistEmpty = Nil
+
+type SubstMapCells s = HList (SubstCells s)
+type SubstMap = HList Substitution
+
+convertSubstMap :: SubstMapCells s -> ST s SubstMap
+convertSubstMap Nil = pure Nil
+convertSubstMap (Cons x xs) = do
+  x' <- toSubstitution x
+  xs' <- convertSubstMap xs
+  pure $ Cons x' xs'
 
 -- instance Semigroup SubstMap where
 --   Nil <> ys       = ys

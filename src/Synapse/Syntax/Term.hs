@@ -31,6 +31,7 @@ import Synapse.Logic.Substitution
 import Synapse.Orphans
 import Synapse.Utils
 import Synapse.Logic.ConstrEq
+import Synapse.Logic.Propagator
 
 import Unbound.Generics.LocallyNameless
 import Unbound.Generics.LocallyNameless.Unsafe
@@ -413,4 +414,21 @@ termMatchesSpec t (TermSpec _ spec) = go spec
     go []                                 = Nothing
     go (alt@(TermSpecAlt altSpec) : alts) = fmap (alt, ) (match t altSpec) <|> go alts
 
+instance PartialSemigroup SubstTerm where
+  x@TSubst {} <<>> y@TSubst {}
+    | x `aeq` y = pure x
+    | otherwise = Inconsistent
+
+  x0 <<>> y0 =
+    case (x0, y0) of
+      (TSubst x sbst, y) -> go sbst x y
+      (x, TSubst y sbst) -> go sbst y x
+      (x, y)
+        | x `aeq` y -> pure x
+        | otherwise -> Inconsistent
+    where
+      go sbst x y =
+        let x' = applySubstitution (substMap retagTerm sbst) x
+        in
+        x' <<>> y
 
