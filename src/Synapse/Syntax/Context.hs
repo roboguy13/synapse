@@ -104,6 +104,12 @@ instance Plated Context where
   plate _ (CtxVar v) = pure (CtxVar v)
   plate f (Extend ctx j) = Extend <$> f ctx <*> pure j
 
+instance Simplify Context where
+  simplify Empty = Empty
+  simplify (CtxVar v) = CtxVar v
+  simplify (Extend ctx j) =
+    Extend (simplify ctx) (simplify j)
+
 instance Match Context where
   isConst Empty = True
   isConst _ = False
@@ -126,6 +132,10 @@ instance Match Context where
     Extend (applySubstMap sbst ctx)
            (applySubstMap sbst j)
 
+instance Simplify HypJudgment where
+  simplify (HypJudgment ctx j) =
+    HypJudgment (simplify ctx) (simplify j)
+
 instance Match HypJudgment where
   isConst _ = False -- TODO: Is this right?
   mkVar_maybe = Nothing
@@ -141,6 +151,10 @@ instance Match HypJudgment where
     HypJudgment
       (applySubstMap sbst ctx)
       (applySubstMap sbst body)
+
+instance Simplify SomeJudgment where
+  simplify (SomeBasicJudgment j) = SomeBasicJudgment $ simplify j
+  simplify (SomeHypJudgment j) = SomeHypJudgment $ simplify j
 
 instance Subst SomeJudgment SomeJudgment
 instance Subst SomeJudgment Judgment

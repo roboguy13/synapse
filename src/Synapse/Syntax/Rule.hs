@@ -21,6 +21,13 @@ data Rule =
 
 makeLenses ''Rule
 
+instance Simplify Rule where
+  simplify rule =
+    rule
+    { _rulePremises = map simplify $ _rulePremises rule
+    , _ruleConclusion = simplify $ _ruleConclusion rule
+    }
+
 instance RenameTerms Rule where
   renameTerms xs rule =
     rule

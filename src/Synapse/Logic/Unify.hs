@@ -108,7 +108,8 @@ solveSubstMap solver sbst x y
   | Just yV <- isVar y = solveVarRight solver sbst yV x
 
   | otherwise = do
-      ps <- lift (matchConstructor x y)
+      let y' = simplify y
+      ps <- lift (matchConstructor x y')
       solveList solver sbst ps
 
 solveList :: forall a. Match a =>
@@ -120,7 +121,8 @@ solveList solver sbst (NodePair x y : rest) = do
   solveList solver sbst' rest
 
 solveVar :: forall a. Match a => Solver -> SubstMap -> Name a -> a -> UnifierM SubstMap
-solveVar solver sbst v y = do
+solveVar solver sbst v y0 = do
+  let y = simplify y0
   guard (not (occurs v y))
 
   case isVar y of

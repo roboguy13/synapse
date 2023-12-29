@@ -45,9 +45,11 @@ runQuery rules0 =
 
 runQueryFreshened :: [Rule] -> SubstMap -> Query -> [QueryResult]
 runQueryFreshened rules substMap (Query query) = do
-  (matchingRule, substMap') <- mapMaybe (matchRule substMap query) rules
+  (matchingRule0, substMap') <- mapMaybe (matchRule substMap query) rules
 
-  case _rulePremises matchingRule of
+  let matchingRule = simplify matchingRule0
+
+  case trace ("matchingRule = " ++ show (_ruleName matchingRule)) $ _rulePremises matchingRule of
     [] -> pure $ QueryResult (derivationOne matchingRule) (substMap' ^. substLens)
     subgoals -> do
       subResult <- traverse (runQueryFreshened rules substMap' . Query) subgoals
@@ -57,7 +59,8 @@ runQueryFreshened rules substMap (Query query) = do
 matchRule :: SubstMap -> SomeJudgment -> Rule -> Maybe (Rule, SubstMap)
 matchRule substMap y rule = do
   substMap' <- runFreshMT $ matchSubst substMap (_ruleConclusion rule) y
-  trace ("substMap = " ++ show (substMap' ^. substLens :: Substitution SubstTerm)) $ pure (substMapRule substMap' rule, substMap')
+  let rule' = simplify $ substMapRule substMap' rule
+  trace ("rule' = " ++ show (ppr rule')) $ pure (rule', substMap')
 
 freshenRule :: Rule -> FreshM Rule
 freshenRule rule = do

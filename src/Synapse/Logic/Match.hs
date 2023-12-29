@@ -36,7 +36,10 @@ data NodePair a where
 
 deriving instance Show a => Show (NodePair a)
 
-class (Eq a, Plated a, Subst a a, Typeable a, Alpha a) => Match a where
+class Simplify a where
+  simplify :: a -> a
+
+class (Simplify a, Eq a, Plated a, Subst a a, Typeable a, Alpha a) => Match a where
   isConst :: a -> Bool
   mkVar_maybe :: Maybe (Name a -> a)
   isVar :: a -> Maybe (Name a)

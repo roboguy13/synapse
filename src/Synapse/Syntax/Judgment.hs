@@ -55,6 +55,14 @@ data Judgment =
   }
   deriving (Show, Generic, Eq)
 
+instance Simplify Judgment where
+  simplify j =
+    j { judgmentSpots = map simplify $ judgmentSpots j }
+
+instance Simplify JudgmentSpec where
+  simplify j =
+    j { judgmentSpecArity = map simplify $ judgmentSpecArity j }
+
 instance RenameTerms JudgmentSpec where
   renameTerms xs (JudgmentSpec parts arity) =
     JudgmentSpec parts (map (renameTerms xs) arity)

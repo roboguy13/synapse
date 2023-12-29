@@ -30,6 +30,7 @@ import Synapse.Logic.SubstMap
 import Synapse.Logic.Substitution
 import Synapse.Orphans
 import Synapse.Utils
+import Synapse.Logic.ConstrEq
 
 import Unbound.Generics.LocallyNameless
 import Unbound.Generics.LocallyNameless.Unsafe
@@ -164,19 +165,16 @@ type Grammar = [TermSpec]
 instance Alpha TermSpecAlt
 instance Alpha TermSpec
 
+instance Simplify TermSpecAlt where
+  simplify = id
+
+instance Simplify TermSpec where
+  simplify = id
+  -- simplify (TermSpec xs alts) = TermSpec xs (map simplify alts)
+
 instance Plated TermSpec where
   plate _ = pure
 
-instance Match TermSpec where
-  isConst _ = False
-  mkVar_maybe = Nothing
-  isVar _ = Nothing
-  matchConstructor (TermSpec xs alts) (TermSpec ys alts') = do
-    guard (xs == ys)
-    zipWithMaybe NodePair alts alts'
-
-  applySubstMap substMap (TermSpec xs ys) =
-    TermSpec xs (map (applySubstMap substMap) ys)
 
 instance Plated TermSpecAlt where
   plate f (TermSpecAlt t) = TermSpecAlt <$> plate (fmap unTermSpecAlt . f . TermSpecAlt) t
@@ -191,13 +189,6 @@ instance Subst TermSpecAlt TermSpecAlt
 instance (Typeable a, Alpha a, Subst TermSpecAlt a) => Subst TermSpecAlt (TermX a)
 instance Subst TermSpecAlt Void
 instance Subst TermSpecAlt BinderSort
-
-instance Match TermSpecAlt where
-  isConst = isConst . unTermSpecAlt
-  mkVar_maybe = fmap ((TermSpecAlt .) . (. coerce)) mkVar_maybe
-  isVar = coerce . isVar . unTermSpecAlt
-
-  applySubstMap substMap = coerce (applySubstMap substMap :: Term -> Term)
 
 dropX :: TermX a -> Maybe Term
 dropX (TermX {}) = Nothing
@@ -229,6 +220,12 @@ convertSubstTerm = convertTerm go
   where
     go :: FSubstTerm -> Term
     go (FTSubst t s) = applySubstitution s (convertSubstTerm t)
+
+instance Simplify SubstTerm where
+  simplify = retagTerm . convertSubstTerm
+
+instance Simplify Term where
+  simplify = id
 
 instance Ppr Grammar where
   ppr = vcat . map go
@@ -273,13 +270,6 @@ termSpecAltSplit :: TermSpecAlt -> Maybe (String, [Term])
 termSpecAltSplit (TermSpecAlt (App (Symbol c) args)) = Just (c, args)
 termSpecAltSplit _ = Nothing
 
-termMatchesSpec :: Term -> TermSpec -> Maybe (TermSpecAlt, SubstMap)
-termMatchesSpec t (TermSpec _ spec) = go spec
-  where
-    go []                                 = Nothing
-    go (alt@(TermSpecAlt altSpec) : alts) = fmap (alt, ) (match t altSpec) <|> go alts
-
-
 pattern Binder' bnd = Binder (BinderSort 0) bnd
 
 instance (Typeable x, Alpha x) => Plated (TermX x) where
@@ -317,16 +307,24 @@ instance forall x b. (Typeable x, Typeable b, Subst (TermX x) b, Alpha b) => Sub
     Just $ SubstName $ coerce x
   isvar _ = Nothing
 
-instance (Subst (TermX x) x, Typeable x, Alpha x) => Match (TermX x) where
-  isConst (Symbol _) = True
-  isConst _ = False
+instance (Subst (TermX a) b) => Subst (TermX a) (Substitution b)
+-- instance (Simplify (TermX x), Subst (TermX x) x, Typeable x, Alpha x) => Match (TermX x) where
+--   isConst (Symbol _) = True
+--   isConst _ = False
+--
+--   mkVar_maybe = Just $ Var . coerce
+--
+--   isVar (Var x) = Just $ coerce x
+--   isVar _ = Nothing
+--
+--   matchConstructor (TermX x) y = undefined
+--   matchConstructor x y =
+--     if constrEq x y
+--     then Just $ zipWith NodePair (children x) (children y)
+--     else Nothing
+--
+--   applySubstMap sbst = applySubstitution (sbst ^. substLens) --applySubstitution . _matchSubstInj
 
-  mkVar_maybe = Just $ Var . coerce
-
-  isVar (Var x) = Just $ coerce x
-  isVar _ = Nothing
-
-  applySubstMap sbst = applySubstitution (sbst ^. substLens) --applySubstitution . _matchSubstInj
 
   -- matchConstructor x y = _
 
@@ -359,7 +357,60 @@ splitLast (x:xs) =
 deriveShow1 ''TermX
 
 -- instance (Subst (TermX a) b, Alpha b) => Subst (TermX a) (TermX b)
-instance (Subst (TermX a) b) => Subst (TermX a) (Substitution b)
 
 -- SUBST_INSTANCES1(TermX)
+
+instance Match Term where
+  isConst (Symbol _) = True
+  isConst _ = False
+
+  mkVar_maybe = Just $ Var . coerce
+
+  isVar (Var x) = Just $ coerce x
+  isVar _ = Nothing
+
+  applySubstMap sbst = applySubstitution (sbst ^. substLens)
+
+instance Match SubstTerm where
+  isConst (Symbol _) = True
+  isConst _ = False
+
+  mkVar_maybe = Just $ Var . coerce
+
+  isVar (Var x) = Just $ coerce x
+  isVar _ = Nothing
+
+  -- matchConstructor (TermX x) y =
+  --   Just [NodePair (getCompose (unFix x)) y]
+  matchConstructor x y =
+    if constrEq x y
+    then Just $ zipWith NodePair (children x) (children y)
+    else Nothing
+
+  applySubstMap sbst = applySubstitution (sbst ^. substLens) --applySubstitution . _matchSubstInj
+
+instance Match TermSpecAlt where
+  isConst = isConst . unTermSpecAlt
+  mkVar_maybe = fmap ((TermSpecAlt .) . (. coerce)) mkVar_maybe
+  isVar = coerce . isVar . unTermSpecAlt
+
+  applySubstMap substMap = coerce (applySubstMap substMap :: Term -> Term)
+
+instance Match TermSpec where
+  isConst _ = False
+  mkVar_maybe = Nothing
+  isVar _ = Nothing
+  matchConstructor (TermSpec xs alts) (TermSpec ys alts') = do
+    guard (xs == ys)
+    zipWithMaybe NodePair alts alts'
+
+  applySubstMap substMap (TermSpec xs ys) =
+    TermSpec xs (map (applySubstMap substMap) ys)
+
+termMatchesSpec :: Term -> TermSpec -> Maybe (TermSpecAlt, SubstMap)
+termMatchesSpec t (TermSpec _ spec) = go spec
+  where
+    go []                                 = Nothing
+    go (alt@(TermSpecAlt altSpec) : alts) = fmap (alt, ) (match t altSpec) <|> go alts
+
 
