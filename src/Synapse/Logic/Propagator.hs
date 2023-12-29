@@ -36,6 +36,12 @@ instance Monad Defined where
 class PartialSemigroup a where
   (<<>>) :: a -> a -> Defined a
 
+zipConcat :: PartialSemigroup a => [a] -> [a] -> Defined [a]
+zipConcat [] [] = Known []
+zipConcat (x:xs) (y:ys) =
+  liftA2 (:) (x <<>> y) (zipConcat xs ys)
+zipConcat _ _ = Inconsistent
+
 newtype LiftedSemigroup a = LiftedSemigroup { getLiftedSemigroup :: a }
   deriving (Show, Semigroup, Monoid, Functor)
 
@@ -206,12 +212,42 @@ binary f cX cY cR = do
       writeDefinedCell cR (liftA2 f x y)
       pure ()
 
+binaryRel :: forall m a b. MonadST m =>
+  (a -> b -> m ()) -> Cell m a -> Cell m b -> m ()
+binaryRel k cellX cellY = do
+  watch cellX goX
+  watch cellY goY
+  where
+    k' (Known x) (Known y) = k x y
+    k' _ _ = pure ()
+
+    goX x = do
+      y <- readCell cellY
+      k' x y
+
+    goY y = do
+      x <- readCell cellX
+      k' x y
+
+
 add :: forall m a. (MonadST m, Eq a, Num a) =>
   Cell m a -> Cell m a -> Cell m a -> m ()
 add = coerce go
   where
     go :: Cell m (Flat a) -> Cell m (Flat a) -> Cell m (Flat a) -> m ()
     go = binary (+)
+
+mirror :: forall m a. (MonadST m, PartialSemigroup a) =>
+  Cell m a -> Cell m a -> m ()
+mirror cX cY = do
+  watch cX goX
+  watch cY goY
+  where
+    goX :: Defined a -> m ()
+    goX x = writeDefinedCell cY x $> ()
+
+    goY :: Defined a -> m ()
+    goY y = writeDefinedCell cX y $> ()
 
 type STCell s = Cell (ST s)
 

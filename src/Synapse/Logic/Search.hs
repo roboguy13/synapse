@@ -13,6 +13,8 @@ import Synapse.Logic.Substitution
 import Synapse.Logic.Unify
 import Synapse.Ppr
 
+import Data.Default
+
 import Data.Bifunctor
 import Data.Coerce
 
@@ -41,7 +43,7 @@ runQuery rules0 =
   let rules = runFreshM $ traverse freshenRule rules0
   in
   -- traceShow rules $
-  runQueryFreshened rules substMapEmpty
+  runQueryFreshened rules def
 
 runQueryFreshened :: [Rule] -> SubstMap -> Query -> [QueryResult]
 runQueryFreshened rules substMap (Query query) = do

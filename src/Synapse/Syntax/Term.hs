@@ -432,3 +432,21 @@ instance PartialSemigroup SubstTerm where
         in
         x' <<>> y
 
+instance PartialSemigroup Term where
+  x <<>> y =
+    if x `aeq` y
+    then Known x
+    else Inconsistent
+
+instance PartialSemigroup TermSpec where
+  x <<>> y =
+    if x `aeq` y
+    then Known x
+    else Inconsistent
+
+instance PartialSemigroup TermSpecAlt where
+  x <<>> y =
+    if x `aeq` y
+    then Known x
+    else Inconsistent
+

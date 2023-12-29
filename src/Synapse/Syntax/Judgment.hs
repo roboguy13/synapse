@@ -15,6 +15,7 @@ import Synapse.Syntax.Term
 import Synapse.Logic.Substitution
 import Synapse.Logic.Unify
 import Synapse.Logic.SubstMap
+import Synapse.Logic.Propagator
 import Synapse.Ppr
 import Synapse.Orphans
 import Synapse.Utils
@@ -177,6 +178,19 @@ instance Match Judgment where
 
   applySubstMap sbst (Judgment spec spots) =
     Judgment (applySubstMap sbst spec) (map (applySubstMap sbst) spots)
+
+instance PartialSemigroup Judgment where
+  x <<>> y = do
+    spots <- zipConcat (judgmentSpots x) (judgmentSpots y)
+    if judgmentSpec x `aeq` judgmentSpec y
+    then Known x { judgmentSpots = spots }
+    else Inconsistent
+
+instance PartialSemigroup JudgmentSpec where
+  x <<>> y =
+    if x `aeq` y
+    then Known x
+    else Inconsistent
 
 -- matchJudgment :: Judgment -> Judgment -> Maybe (Substitution Term)
 -- matchJudgment matcher j

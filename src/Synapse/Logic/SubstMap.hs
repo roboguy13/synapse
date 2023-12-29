@@ -27,6 +27,7 @@ import Synapse.Logic.Substitution as Substitution
 import Synapse.Logic.Propagator
 
 import Control.Monad.ST
+import Control.Monad.ST.Class
 
 import Unbound.Generics.LocallyNameless
 
@@ -71,7 +72,7 @@ hlistEmpty = Nil
 type SubstMapCells s = HList (SubstCells s)
 type SubstMap = HList Substitution
 
-convertSubstMap :: SubstMapCells s -> ST s SubstMap
+convertSubstMap :: MonadST m => SubstMapCells m -> m SubstMap
 convertSubstMap Nil = pure Nil
 convertSubstMap (Cons x xs) = do
   x' <- toSubstitution x

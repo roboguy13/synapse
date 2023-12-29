@@ -8,6 +8,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Synapse.Logic.Unify
   (NodePair (..)
@@ -31,8 +32,11 @@ import Prelude hiding (abs, lookup, id, (.))
 import Control.Category
 import Control.Monad
 
+import Control.Monad.Trans.Maybe
+
 import Synapse.Logic.Substitution as Substitution
 import Synapse.Logic.SubstMap
+import Synapse.Logic.Propagator
 import Synapse.Logic.ConstrEq
 import Synapse.Logic.Match
 
@@ -60,33 +64,35 @@ doOccursCheck = True
 
 match :: Match a => a -> a -> Maybe SubstMap
 match x y = runST $
-  case matchCells x y of
+  runMaybeT (matchCells x y) >>= \case
     Nothing -> pure Nothing
     Just substMap -> do
-      sm <- convertSubstMap substMap
-      pure $ Just sm
+      runMaybeT (runFreshMT (convertSubstMap substMap)) >>= \case
+        Nothing -> pure Nothing
+        Just substMap' -> pure $ Just substMap'
 
 unify :: Match a => a -> a -> Maybe SubstMap
-unify x y = runST $
-  case unifyCells x y of
+unify x y = runST $ do
+  runMaybeT (unifyCells x y) >>= \case
     Nothing -> pure Nothing
     Just substMap -> do
-      sm <- convertSubstMap substMap
-      pure $ Just sm
+      runMaybeT (runFreshMT (convertSubstMap substMap)) >>= \case
+        Nothing -> pure Nothing
+        Just substMap' -> pure $ Just substMap'
 
-matchCells :: Match a => a -> a -> Maybe (SubstMapCells s)
+matchCells :: Match a => a -> a -> MaybeT (ST s) (USubstMapCells s)
 matchCells x = runFreshMT . matchM x
 
-unifyCells :: Match a => a -> a -> Maybe (SubstMapCells s)
+unifyCells :: Match a => a -> a -> MaybeT (ST s) (USubstMapCells s)
 unifyCells x = runFreshMT . unifyM x
 
-matchM :: Match a => a -> a -> FreshMT Maybe (SubstMapCells s)
+matchM :: Match a => a -> a -> FreshMT (MaybeT (ST s)) (USubstMapCells s)
 matchM = matchSubst hlistEmpty
 
-unifyM :: Match a => a -> a -> FreshMT Maybe (SubstMapCells s)
+unifyM :: Match a => a -> a -> FreshMT (MaybeT (ST s)) (USubstMapCells s)
 unifyM = unifySubst hlistEmpty
 
-matchList :: Match a => [(a, a)] -> FreshMT Maybe (SubstMapCells s)
+matchList :: Match a => [(a, a)] -> FreshMT (MaybeT (ST s)) (USubstMapCells s)
 matchList = go hlistEmpty
   where
     go subst [] = pure subst
@@ -94,29 +100,32 @@ matchList = go hlistEmpty
       subst' <- matchSubst subst x y
       go subst' rest
 
-matchSubst :: Match a => SubstMapCells s -> a -> a -> FreshMT Maybe (SubstMapCells s)
+matchSubst :: Match a => USubstMapCells s -> a -> a -> FreshMT (MaybeT (ST s)) (USubstMapCells s)
 matchSubst = solve matchSolver
 
-unifySubst :: Match a => SubstMapCells s -> a -> a -> FreshMT Maybe (SubstMapCells s)
+unifySubst :: Match a => USubstMapCells s -> a -> a -> FreshMT (MaybeT (ST s)) (USubstMapCells s)
 unifySubst = solve unifySolver
 
-type UnifierM = FreshMT Maybe
+type UnifierM s = FreshMT (MaybeT (ST s))
+
+type UCell s = Cell (UnifierM s)
+type USubstMapCells s = SubstMapCells (UnifierM s)
 
 data Solver s =
   Solver
-  { solve :: forall a. Match a => SubstMapCells s -> a -> a -> UnifierM (SubstMapCells s)
-  , solveVarRight :: forall a. Match a => SubstMapCells s -> Name a -> a -> UnifierM (SubstMapCells s)
+  { solve :: forall a. Match a => USubstMapCells s -> a -> a -> UnifierM s (USubstMapCells s)
+  , solveVarRight :: forall a. Match a => USubstMapCells s -> Name a -> a -> UnifierM s (USubstMapCells s)
   }
 
 unifySolver :: Solver s
 unifySolver = Solver (solveSubstMap unifySolver) (solveVar unifySolver)
 
 matchSolver :: Solver s
-matchSolver = Solver (solveSubstMap matchSolver) (\_ _ _ -> lift Nothing)
+matchSolver = Solver (solveSubstMap matchSolver) (\_ _ _ -> lift $ hoistMaybe Nothing)
 
 solveSubstMap :: Match a =>
   Solver s ->
-  SubstMapCells s -> a -> a -> UnifierM (SubstMapCells s)
+  USubstMapCells s -> a -> a -> UnifierM s (USubstMapCells s)
 solveSubstMap solver sbst x y
   | isConst x, isConst y = do
       guard (x == y)
@@ -127,20 +136,53 @@ solveSubstMap solver sbst x y
 
   | otherwise = do
       let y' = simplify y
-      ps <- lift (matchConstructor x y')
+      ps <- lift $ hoistMaybe (matchConstructor x y')
       solveList solver sbst ps
 
 solveList :: forall s a. Match a =>
   Solver s ->
-  SubstMapCells s -> [NodePair a] -> UnifierM (SubstMapCells s)
+  USubstMapCells s -> [NodePair a] -> UnifierM s (USubstMapCells s)
 solveList solver sbst [] = pure sbst
 solveList solver sbst (NodePair x y : rest) = do
   sbst' <- solveSubstMap solver sbst x y
   solveList solver sbst' rest
 
-solveVar :: forall s a. Match a => Solver s -> SubstMapCells s -> Name a -> a -> UnifierM (SubstMapCells s)
-solveVar solver sbst v y0 = do
-    undefined
+-- | Create the cell if it doesn't exist
+getVarCell :: Typeable a => USubstMapCells s -> Name a -> UnifierM s (UCell s a, USubstMapCells s)
+getVarCell sbst v =
+  case sbst ^. (substLens . to (lookupSubstCell v)) of
+    Just cell -> pure (cell, sbst)
+    Nothing -> do
+      (cell, sbstCells) <- mkUnknownSubstCell (sbst ^. substLens) v
+      pure (cell, sbst & substLens .~ sbstCells)
+
+solveVar :: forall s a. Match a => Solver s -> USubstMapCells s -> Name a -> a -> UnifierM s (USubstMapCells s)
+solveVar solver sbst0 xVar y = do
+  guard (not (occurs xVar y))
+
+  (cellX, sbst') <- getVarCell sbst0 xVar
+
+  case isVar y of
+    Just yVar -> do
+      (cellY, sbst'') <- getVarCell sbst' yVar
+      mirror cellX cellY
+      binaryRel (fmap void . solveSubstMap solver sbst'') cellX cellY
+      pure sbst''
+
+      -- solveSubstMap solver sbst'' (mkVar xVar) undefined
+
+    Nothing -> do
+      -- TODO: Do we also unify here?
+      sb <- writeSubstCell (sbst' ^. substLens) xVar y
+      pure $ sbst' & substLens .~ sb
+
+      -- case sbst ^. (substLens . to (lookupSubstCell yVar)) of
+      --   Just yCell -> undefined
+      --
+      --   Nothing -> do
+      --     (yCell, newSbst) <- lift $ lift $ mkUnknownSubstCell (sbst ^. substLens) yVar
+      --     undefined
+
 --   let y = simplify y0
 --   guard (not (occurs v y))
 --
@@ -161,13 +203,13 @@ solveVar solver sbst v y0 = do
 --           guard (vInst == y)
 --           pure sbst
 --         Nothing -> pure $ sbst & substLens %~ extend v y
---
--- occurs :: Match a => Name a -> a -> Bool
--- occurs =
---   if not doOccursCheck
---   then \_ _ -> False
---   else \v x ->
---     case isVar x of
---       Just xV -> xV `aeq` v -- TODO: Is this right?
---       Nothing -> any (occurs v) (children x)
---
+
+occurs :: Match a => Name a -> a -> Bool
+occurs =
+  if not doOccursCheck
+  then \_ _ -> False
+  else \v x ->
+    case isVar x of
+      Just xV -> xV `aeq` v -- TODO: Is this right?
+      Nothing -> any (occurs v) (children x)
+

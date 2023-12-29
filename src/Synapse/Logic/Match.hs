@@ -19,6 +19,7 @@ import Control.Category
 
 import Synapse.Logic.Substitution as Substitution
 import Synapse.Logic.Injection
+import Synapse.Logic.Propagator
 import Synapse.Logic.SubstMap
 import Synapse.Logic.ConstrEq
 
@@ -39,7 +40,7 @@ deriving instance Show a => Show (NodePair a)
 class Simplify a where
   simplify :: a -> a
 
-class (Simplify a, Eq a, Plated a, Subst a a, Typeable a, Alpha a) => Match a where
+class (PartialSemigroup a, Simplify a, Eq a, Plated a, Subst a a, Typeable a, Alpha a) => Match a where
   isConst :: a -> Bool
   mkVar_maybe :: Maybe (Name a -> a)
   isVar :: a -> Maybe (Name a)

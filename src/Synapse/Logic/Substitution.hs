@@ -11,8 +11,10 @@ module Synapse.Logic.Substitution
   ,applySubstitution
   ,SubstCells
   ,emptySubstCells
+  ,mkUnknownSubstCell
   ,watchSubstCell
   ,writeSubstCell
+  ,lookupSubstCell
   ,toSubstitution
   )
   where
@@ -23,6 +25,7 @@ import Synapse.Ppr hiding (isEmpty)
 import Synapse.Logic.Propagator
 
 import Control.Monad.ST
+import Control.Monad.ST.Class
 
 import Data.Default
 
@@ -37,6 +40,9 @@ import Data.Coerce
 
 newtype Substitution a = Substitution [(Name a, a)]
   deriving (Semigroup, Monoid, Show, Generic, Typeable)
+
+instance Default (Substitution a) where
+  def = mempty
 
 -- | NOTE: Be careful using this
 substMap :: (a -> b) -> Substitution a -> Substitution b
@@ -70,15 +76,20 @@ applySubstitution (Substitution xs0) = go xs0
     go [] t = t
     go ((x, s):rest) t = subst x s (go rest t)
 
-newtype SubstCells s a = SubstCells [(Name a, STCell s a)]
+newtype SubstCells m a = SubstCells [(Name a, Cell m a)]
 
-emptySubstCells :: SubstCells s a
+emptySubstCells :: SubstCells m a
 emptySubstCells = SubstCells []
 
-instance Default (SubstCells s a) where def = emptySubstCells
+instance Default (SubstCells m a) where def = emptySubstCells
 
-watchSubstCell :: PartialSemigroup a =>
-  SubstCells s a -> Name a -> (a -> ST s ()) -> ST s ()
+mkUnknownSubstCell :: MonadST m => SubstCells m a -> Name a -> m (Cell m a, SubstCells m a)
+mkUnknownSubstCell (SubstCells xs) n = do
+  cell <- mkUnknown
+  pure (cell, SubstCells ((n, cell) : xs))
+
+watchSubstCell :: (MonadST m, PartialSemigroup a) =>
+  SubstCells m a -> Name a -> (a -> m ()) -> m ()
 watchSubstCell (SubstCells ((x, cell):rest)) name k
   | x == name = watch cell go
   | otherwise = watchSubstCell (SubstCells rest) name k
@@ -86,16 +97,24 @@ watchSubstCell (SubstCells ((x, cell):rest)) name k
     go (Known v) = k v
     go _ = pure ()
 
-writeSubstCell :: PartialSemigroup a =>
-  SubstCells s a -> Name a -> a -> ST s (SubstCells s a)
+writeSubstCell :: (MonadST m, PartialSemigroup a) =>
+  SubstCells m a -> Name a -> a -> m (SubstCells m a)
 writeSubstCell (SubstCells []) name v = do
   cell <- mkKnown v
   pure $ SubstCells [(name, cell)]
 writeSubstCell sc@(SubstCells ((x, cell):rest)) name v
   | x == name = writeCell_ cell v $> sc
-  | otherwise = writeSubstCell (SubstCells rest) name v
+  | otherwise = cons (x, cell) <$> writeSubstCell (SubstCells rest) name v
+    where
+      cons p (SubstCells s) = SubstCells (p : s)
 
-toSubstitution :: SubstCells s a -> ST s (Substitution a)
+lookupSubstCell :: Name a -> SubstCells m a -> Maybe (Cell m a)
+lookupSubstCell _ (SubstCells []) = Nothing
+lookupSubstCell name (SubstCells ((x, cell):rest))
+  | x == name = Just cell
+  | otherwise = lookupSubstCell name (SubstCells rest)
+
+toSubstitution :: MonadST m => SubstCells m a -> m (Substitution a)
 toSubstitution (SubstCells []) = pure mempty
 toSubstitution (SubstCells ((x, cell) : rest)) = do
   restSubst <- toSubstitution (SubstCells rest)

@@ -14,6 +14,7 @@ import Prelude hiding (id, (.))
 import Synapse.Syntax.Judgment
 import Synapse.Syntax.Term
 import Synapse.Logic.Unify
+import Synapse.Logic.Propagator
 import Synapse.Logic.Substitution
 import Synapse.Logic.Injection
 import Synapse.Logic.SubstMap
@@ -32,6 +33,7 @@ import Unbound.Generics.LocallyNameless
 import Control.Lens.Plated
 import Control.Lens.TH
 import Control.Lens hiding (Context, Empty, (<.>))
+import Control.Applicative
 
 import Data.Fix
 
@@ -48,6 +50,32 @@ instance Ppr Context where
   ppr Empty = text "<>"
   ppr (CtxVar x) = text "?" <.> ppr x
   ppr (Extend ctx j) = ppr ctx <.> text "," <+> ppr j
+
+instance PartialSemigroup Context where
+  Empty <<>> Empty = Known Empty
+  CtxVar x <<>> CtxVar y =
+    if x == y
+    then Known $ CtxVar x
+    else Inconsistent
+  Extend ctx j <<>> Extend ctx' j' =
+    liftA2 Extend (ctx <<>> ctx') (j <<>> j')
+  _ <<>> _ = Inconsistent
+
+instance PartialSemigroup HypJudgment where
+  x <<>> y = do
+    ctx <- _hypJudgmentCtx x <<>> _hypJudgmentCtx y
+    body <- _hypJudgmentBody x <<>> _hypJudgmentBody y
+    pure $ HypJudgment ctx body
+
+instance PartialSemigroup SomeJudgment where
+  SomeBasicJudgment x <<>> SomeBasicJudgment y =
+    fmap SomeBasicJudgment (x <<>> y)
+
+  SomeHypJudgment x <<>> SomeHypJudgment y =
+    fmap SomeHypJudgment (x <<>> y)
+
+  _ <<>> _ = Inconsistent
+
 
 data HypJudgment =
   HypJudgment
