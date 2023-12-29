@@ -45,6 +45,7 @@ executable synapse
       Synapse.Logic.ConstrEq
       Synapse.Logic.SubstMap
       Synapse.Logic.Match
+      Synapse.Logic.Propagator
       Synapse.Ppr
       Synapse.Orphans
       Synapse.Utils
@@ -62,5 +63,6 @@ executable synapse
                       deriving-compat,
                       dependent-map,
                       constraints,
+                      monad-st,
     hs-source-dirs:   src
     default-language: Haskell2010
